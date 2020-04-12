@@ -7,6 +7,8 @@ Tell us what should happen
 Tell us what happens instead
 
 ### System configuration
+**Application name**;
+
 **Application version**:
 
 **Python version**:
