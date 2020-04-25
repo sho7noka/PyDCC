@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from functools import partial
-
 from yurlungur.core.proxy import YNode, YFile
 from yurlungur.tool.meta import meta
 from yurlungur.core.app import YException
@@ -10,6 +9,7 @@ __all__ = ["file", "cmd", "node"]
 
 class Command(object):
     """plugin system"""
+
     @staticmethod
     def register(func):
         pass
@@ -62,21 +62,27 @@ def _alembicImporter(cls, *args, **kwargs):
     >>> YFile.new_method = new_method
     >>> print f.new_method("new")
     """
-    if hasattr(meta, "AbcImport"):
+    if getattr(meta, "AbcImport", False):
         return cls(meta.AbcImport(*args, **kwargs))
 
-    if hasattr(meta, "hda"):
+    if getattr(meta, "textureset", False):
+        return meta.project.create(*args, **kwargs)
+
+    if getattr(meta, "hda", False):
         geo = yr.YNode("obj").create("geo")
         abc = geo.create("alembic")
         abc.fileName.set(*args)
         return cls(*args)
 
-    if hasattr(meta, "runtime"):
-        importer = partial(meta.runtime.importFile, args[0], meta.runtime.Name("noPrompt"), using='AlembicImport')
+    if getattr(meta, "runtime", False):
+        importer = partial(
+            meta.runtime.importFile, args[0], meta.runtime.Name("noPrompt"),
+            using='AlembicImport'
+        )
         if importer(**kwargs):
             return args[0]
 
-    if hasattr(meta, 'uclass'):
+    if getattr(meta, 'uclass', False):
         data = meta.AutomatedAssetImportData()
         data.set_editor_property('filenames', *args)
         for k, v in kwargs:
@@ -87,11 +93,14 @@ def _alembicImporter(cls, *args, **kwargs):
 
 
 def _alembicExporter(cls, *args, **kwargs):
-    if hasattr(meta, "AbcExport"):
+    if getattr(meta, "AbcExport", False):
         return cls(meta.AbcExport(*args, **kwargs))
 
-    if hasattr(meta, "runtime"):
-        export = partial(meta.runtime.exportFile, args[0], meta.runtime.Name("noPrompt"), using='AlembicExport')
+    if getattr(meta, "runtime", False):
+        export = partial(
+            meta.runtime.exportFile, args[0], meta.runtime.Name("noPrompt"),
+            using='AlembicExport'
+        )
         if export(**kwargs):
             return args[0]
 
@@ -99,15 +108,22 @@ def _alembicExporter(cls, *args, **kwargs):
 
 
 def _fbxImporter(cls, *args, **kwargs):
-    if hasattr(meta, "importFBX"):
+    if getattr(meta, "importFBX", False):
         return meta.importFBX(*args, **kwargs)
 
-    if hasattr(meta, "runtime"):
-        importer = partial(meta.runtime.importFile, args[0], meta.runtime.Name("noPrompt"), using='FBXIMPORTER')
+    if getattr(meta, "runtime", False):
+        importer = partial(
+            meta.runtime.importFile, args[0], meta.runtime.Name("noPrompt"),
+            using='FBXIMPORTER'
+        )
         if importer(**kwargs):
             return args[0]
 
-    if hasattr(meta, 'uclass'):
+    # fbx, obj, dae, ply, gltf, abc
+    if getattr(meta, "textureset", False):
+        return meta.project.create(*args, **kwargs)
+
+    if getattr(meta, 'uclass', False):
         data = unreal.AutomatedAssetImportData()
         data.set_editor_property('filenames', *args)
         for k, v in kwargs:
@@ -117,19 +133,22 @@ def _fbxImporter(cls, *args, **kwargs):
 
         meta.tools.import_assets_automated(data)
 
-    if hasattr(meta, 'eval'):
+    if getattr(meta, 'eval', False):
         return cls(meta.eval("FBXImport -file {0};".format(*args)))
 
     raise YException
 
 
 def _fbxExporter(cls, *args, **kwargs):
-    if hasattr(meta, "runtime"):
-        export = partial(meta.runtime.exportFile, args[0], meta.runtime.Name("noPrompt"), using='FBXEXPORTER')
+    if getattr(meta, "runtime", False):
+        export = partial(
+            meta.runtime.exportFile, args[0], meta.runtime.Name("noPrompt"),
+            using='FBXEXPORTER'
+        )
         if export(**kwargs):
             return args[0]
 
-    if hasattr(meta, 'eval'):
+    if getattr(meta, 'eval', False):
         return cls(meta.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
 
     raise YException

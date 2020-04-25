@@ -78,10 +78,22 @@ class YObject(_YObject):
         if getattr(meta, "Debug", False):
             return meta.engine.GameObject.Find(self.name).GetInstanceID() or 0
 
+        if getattr(meta, "textureset", False):
+            return
+
         raise YException
 
     @trace
     def set(self, *args, **kwargs):
+        """
+        
+        Args:
+            *args:
+            **kwargs:
+
+        Returns:
+
+        """
         if getattr(meta, "SDNode", False):
             meta.graph.setIdentifier(args[0])
 
@@ -138,6 +150,9 @@ class YObject(_YObject):
                 meta.editor.EditorUtility.SetDirty(asset)
 
             return YNode(args[0])
+
+        if getattr(meta, "textureset", False):
+            return
 
     @trace
     def __getattr__(self, val):
@@ -223,6 +238,9 @@ class YObject(_YObject):
                     return YAttr(obj.GetComponent(com.GetType()), self.name, val)
             return None
 
+        if getattr(meta, "textureset", False):
+            return
+
         raise YException
 
     @trace
@@ -297,6 +315,9 @@ class YObject(_YObject):
                     return YAttr(obj.GetComponent(com.GetType()), self.name, val)
             return None
 
+        if getattr(meta, "textureset", False):
+            return
+
         raise YException
 
     def __dir__(self):
@@ -356,6 +377,9 @@ class YObject(_YObject):
             for com in obj.GetComponentsInChildren(meta.engine.Component):
                 attrs.extend(dir(obj.GetComponent(com.GetType())))
             return list(set([attr for attr in attrs if not attr.startswith("__")]))
+
+        if getattr(meta, "textureset", False):
+            return
 
         raise YException
 
@@ -462,6 +486,9 @@ class YObject(_YObject):
             else:
                 return meta.editor.AssetDatabase.CreateAsset(*args)
 
+        if getattr(meta, "textureset", False):
+            return
+
         raise YException
 
     @trace
@@ -508,6 +535,9 @@ class YObject(_YObject):
                 return meta.engine.GameObject.DestroyImmediate(go)
             else:
                 return meta.editor.AssetDatabase.DeleteAsset(self.name)
+
+        if getattr(meta, "textureset", False):
+            return
 
         raise YException
 
@@ -1108,15 +1138,22 @@ class YAttr(_YAttr):
                 if self.val in dir(obj.GetComponent(com.GetType())):
                     return setattr(obj.GetComponent(com.GetType()), self.val, args[0])
 
+        if getattr(meta, "textureset", False):
+            return
+
         raise YException
 
     @trace
     def __call__(self, *args, **kwargs):
         """
         helper method for set
-        :param args:
-        :param kwargs:
-        :return:
+        
+        Args:
+            *args:
+            **kwargs:
+
+        Returns:
+
         """
         self.set(*args, **kwargs)
 
@@ -1247,6 +1284,12 @@ class YFile(_YObject):
         if getattr(meta, "Debug", False):
             return cls(meta.editor.AssetDatabase.ImportAsset(*args, **kwargs))
 
+        if getattr(meta, "textureset", False):
+            if args[0].endswith(".spp"):
+                return meta.project.open(*args)
+            else:
+                return meta.project.create(*args, **kwargs)
+
         raise YException
 
     @classmethod
@@ -1299,6 +1342,12 @@ class YFile(_YObject):
         if getattr(meta, "Debug", False):
             return
 
+        if getattr(meta, "textureset", False):
+            if args[0].endswith(".spp"):
+                return meta.project.save_as(*args, **kwargs)
+            else:
+                return meta.export.export_project_textures(**kwargs)
+
         raise YException
 
     @property
@@ -1345,6 +1394,9 @@ class YFile(_YObject):
 
         if getattr(meta, "Debug", False):
             return meta.editor.AssetDatabase.GetAssetOrScenePath()
+
+        if getattr(meta, "textureset", False):
+            return meta.project.file_path()
 
         raise YException
 
