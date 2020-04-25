@@ -57,6 +57,11 @@ elif "3dsmax" in application:
 
     application = pymxs
 
+elif __import__("substance_painter"):
+    import substance_painter
+
+    application = substance_painter
+
 else:
     from yurlungur.tool import standalone
 
@@ -66,8 +71,11 @@ else:
 def use(module):
     """
     set external application
-    :param module:
-    :return:
+    Args:
+        module:
+
+    Returns:
+
     >>> import yurlungur
     >>> yurlungur.use("hou")
     """

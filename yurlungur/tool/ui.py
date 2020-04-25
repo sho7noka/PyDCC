@@ -18,10 +18,14 @@ if env.Qt():
     from yurlungur.Qt.QtWidgets import *
 
 
+class CallBack(object):
+    pass
+
+
 @env.Qt
-def widgetPtr():
+def main_window():
     """
-    >>> ptr = yurlungur.ui.widgetPtr()
+    >>> ptr = yurlungur.ui.main_window()
     >>> view = yurlungur.Qt.QMainWindow(ptr)
     >>> memoryview.show()
 
@@ -38,20 +42,28 @@ def widgetPtr():
         ptr = long(OpenMayaUI.MQtUtil.mainWindow())
         return QtCompat.wrapInstance(ptr, QWidget)
 
-    if app_name == "pymxs":
-        import MaxPlus
-        return MaxPlus.QtHelpers_GetQmaxMainWindow()
+    if app_name == "sd.api":
+        from yurlungur.adapters import substance
+        return substance.qt.getMainWindow()
 
     if app_name == "hou":
         import hou
         return hou.qt.mainWindow()
 
-    if app_name == "sd.api":
-        from yurlungur.adapters import substance
-        return substance.qt.getMainWindow()
-
     if app_name == "nuke":
         return QApplication.activeWindow()
+
+    if app_name == "pymxs":
+        try:
+            import qtmax
+            return qtmax.GetQMaxMainWindow()
+        except ImportError:
+            import MaxPlus
+            return MaxPlus.QtHelpers_GetQmaxMainWindow()
+
+    if app_name == "substance_painter":
+        import substance_painter
+        return substance_painter.ui.get_main_window()
 
     return None
 

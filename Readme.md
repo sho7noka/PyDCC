@@ -5,7 +5,7 @@
 | OS | [![Build status](https://ci.appveyor.com/api/projects/status/46vinb8jd1jbbhdg?svg=true)](https://ci.appveyor.com/project/sho7noka/yurlungur) | [![Build Status](https://travis-ci.org/sho7noka/Yurlungur.svg?branch=dev)](https://travis-ci.org/sho7noka/Yurlungur) | [![Latest PyPI version](https://img.shields.io/pypi/v/yurlungur.svg)](https://pypi.python.org/pypi/yurlungur) |
 
 
-universal scripting environment with Python which Maya, Houdini and UnrealEngine4.
+The universal scripting environment with Python which Maya, Houdini and Unreal Engine.
 
 ## summary
 DCC tool scripting is almost used Python, but these api isn't similarly anything.
@@ -16,23 +16,23 @@ Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 
 ### future
 * HOM (Houdini Object Model) like command wrapper.
-* PySide & PyQt shorten accessor.
+* Qt for Python shorten accessor.
 * Useful snippet for Game&VFX technical artist.
 
 ### available
 |       | Node | Attribute | Data |
 | ---- | --- | --- | --- |
 | Maya (2016~) | ○ | ○ | ☓ |
-| Substance (2018.1.2~) | ○ | ○ | ☓ |
+| Substance Designer (2018.1.2~) | ○ | ○ | ☓ |
 | Houdini (16~) | ○ | ○ | ☓ |
 | Blender (2.80~) | ○ | ○ | ☓ |
-| UnrealEngine4 (4.22~) | ○ | ○ | ☓ |
+| Unreal Engine (4.22~) | ○ | ○ | ☓ |
 | Unity (2019.3~) | ○ | ○ | ☓ |
 | Nuke (10~) | ○ | ○ | ☓ |
 | Cinema4D (R21~) | ○ | ○ | ☓ |
 | Davinci Resolve(&Fusion) (15~) | ○ | ○ | ☓ |
 
-available for Photoshop(require 3th party module) and 3dsMax.
+We also support Photoshop, Substance Painter and 3dsMax.
 
 ### Installation
 ```bash
@@ -43,7 +43,7 @@ $ pip install yurlungur
 If you use UE4 Editor or Standalone for full supports, Yurlungur recommend `Qt for Python` module.
 
 ```bash
-$ pipenv install PySide2
+$ pip install PySide2
 ```
 
 ### semantics

@@ -14,7 +14,7 @@ def _PrintToErr(line):
     """just a handy debugging method"""
     old = sys.stdout
     sys.stdout = sys.__stderr__
-    print line
+    print (line)
     sys.stdout = old
 
 

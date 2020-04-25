@@ -4,12 +4,7 @@ from yurlungur.core import deco, env
 
 if deco.Windows():
     if not env.__import__("comtypes"):
-        import pip
-
-        if not getattr(pip, "main", False):
-            from pip import _internal as pip
-
-        pip.main(["install", "comtypes"])
+        env.pip.main(["install", "comtypes"])
 
     from comtypes.client import GetActiveObject
     from comtypes.gen import Photoshop
@@ -21,12 +16,7 @@ if deco.Windows():
 
 elif deco.Mac():
     if not env.__import__("ScriptingBridge"):
-        import pip
-
-        if not getattr(pip, "main", False):
-            from pip import _internal as pip
-
-        pip.main(["install", "pyobjc-framework-ScriptingBridge"])
+        env.pip.main(["install", "pyobjc-framework-ScriptingBridge"])
 
     from ScriptingBridge import SBApplication
 

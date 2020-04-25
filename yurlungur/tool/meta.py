@@ -7,8 +7,12 @@ meta = YMObject()
 def __make_completer(mod):
     """
     make each meta modules
-    :param mod:
-    :return:
+
+    Args:
+        mod:
+
+    Returns:
+
     """
     import os
     import inspect

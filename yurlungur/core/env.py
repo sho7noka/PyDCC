@@ -10,12 +10,24 @@ try:
     import functools
     import platform
     import code
+    import urllib2
 except ImportError:
-    pass
+    import urllib
 
 
 def __import__(name, globals=None, locals=None, fromlist=None):
-    # Fast path: see if the module has already been imported.
+    """
+    Fast path:
+    see if the module has already been imported.
+
+    Args:
+        name:
+        globals:
+        locals:
+        fromlist:
+
+    Returns:
+    """
     try:
         return sys.modules[name]
     except KeyError:
@@ -62,15 +74,37 @@ def __import__(name, globals=None, locals=None, fromlist=None):
             return False
 
 
+def get_pip():
+    """
+    Returns: pip module
+
+    """
+    try:
+        import pip
+    except ImportError:
+        with urllib2.urlopen("https://raw.github.com/pypa/pip/master/contrib/get-pip.py") as f:
+            print(f.read().decode("utf-8"))
+        execfile("get-pip.py")
+
+    if not getattr(pip, "main", False):
+        from pip import _internal as pip
+
+    return pip
+
+
+# patch
+pip = get_pip()
+
+
 class App(object):
     """"""
 
-    def __init__(self, name):
+    def __init__(self, name, version=None):
         d = {
-            "maya": _Maya(), "photoshop": _Photoshop(), "ue4": _Unreal(),
-            "houdini": _Houdini(), "substance": _Substance(), "3dsmax": _Max(),
-            "nuke": _Nuke(), "c4d": _Cinema4D(), "davinci": None,
-            "modo": None, "blender": _Blender(), "unity": None,
+            "maya": _Maya(version), "photoshop": _Photoshop(version),
+            "houdini": _Houdini(version), "substance": _Substance(version), "3dsmax": _Max(version),
+            "nuke": _Nuke(version), "c4d": _Cinema4D(version), "davinci": None,
+            "blender": _Blender(version), "ue4": _Unreal(version), "unity": None,
         }
         self.app_name = d[name]
 
@@ -168,6 +202,15 @@ class App(object):
 
 
 def Qt(func=None):
+    """
+    Blender, UE4, Unity, C4D, Davinch, Photoshop
+
+    Args:
+        func:
+
+    Returns:
+
+    """
     try:
         import yurlungur.Qt as Qt
         is_Qt = any([Qt])
@@ -234,6 +277,18 @@ def Substance(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if "Substance" in sys.executable:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def SPainter(func=None):
+    if func is None:
+        return __import__("substance_painter")
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if __import__("substance_painter"):
             return func(*args, **kwargs)
 
     return wrapper
@@ -412,6 +467,15 @@ def _Photoshop(v=2018):
 
 def _Max(v=2018):
     return os.environ.get("ADSK_3DSMAX_X64_%d" % v) or "C:/Program Files/Autodesk/3ds Max %d/3dsmax.exe" % v
+
+
+def _SubstancePainter():
+    d = {
+        "Linux": "/opt/Allegorithmic/Substance_Painter/Substance Painter",
+        "Windows": "C:/Program Files/Allegorithmic/Substance Painter/Substance Painter.exe",
+        "Darwin": "/Applications/Substance Painter.app/Contents/MacOS/Substance Painter"
+    }
+    return d[platform.system()]
 
 
 def _Nuke():

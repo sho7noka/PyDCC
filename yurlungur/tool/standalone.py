@@ -5,9 +5,13 @@ from yurlungur.adapters import *  # noQA
 
 def _cli(args):
     """
-    command line parser
-    :param args:
-    :return:
+    yurlungur command line parser
+
+    Args:
+        args:
+
+    Returns:
+
     """
     import argparse
     import yurlungur as yr
@@ -64,19 +68,10 @@ def _cli(args):
         use(arguments.environ[0])
 
     if arguments.qt:
-        # https://raw.github.com/pypa/pip/master/contrib/get-pip.py
-        import pip
-        if not getattr(pip, "main", False):
-            from pip import _internal as pip
-
-        pip.main(["install", "PySide2"])
+        yr.env.pip.main(["install", "PySide2"])
 
     if arguments.ptvsd:
-        import pip
-        if not getattr(pip, "main", False):
-            from pip import _internal as pip
-
-        pip.main(["install", "ptvsd"])
+        yr.env.pip.main(["install", "ptvsd"])
 
 
 if __name__ == '__main__':

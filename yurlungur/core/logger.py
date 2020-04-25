@@ -45,6 +45,9 @@ class GuiLogHandler(Handler):
             elif env.Max():
                 meta.print_(msg, True, False)
 
+            elif env.SPainter():
+                meta.logging.error(msg)
+
         elif record.levelno > INFO:
             if env.Maya():
                 self.MGlobal.displayWarning(msg)
@@ -67,6 +70,9 @@ class GuiLogHandler(Handler):
             elif env.Max():
                 meta.print_(msg, True, False)
 
+            elif env.SPainter():
+                meta.logging.warning(msg)
+
         else:
             if env.Maya():
                 self.MGlobal.displayInfo(msg)
@@ -88,6 +94,9 @@ class GuiLogHandler(Handler):
 
             elif env.Max():
                 meta.print_(msg, False, True)
+
+            elif env.SPainter():
+                meta.logging.info(msg)
 
 
 try:

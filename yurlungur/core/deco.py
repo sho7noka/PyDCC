@@ -111,10 +111,14 @@ else:
 def cache(func, *args, **kwargs):
     """
     Substance, Blender and Davinch use lcu_cache at Python3.
-    :param func:
-    :param args:
-    :param kwargs:
-    :return:
+
+    Args:
+        func:
+        *args:
+        **kwargs:
+
+    Returns:
+
     """
     saved = {}
 
@@ -131,9 +135,13 @@ def cache(func, *args, **kwargs):
 
 def trace(func):
     """
+    message util
 
-    :param func:
-    :return:
+    Args:
+        func:
+
+    Returns:
+
     """
     try:
         @functools.wraps(func)
@@ -153,9 +161,13 @@ def trace(func):
 
 def timer(func):
     """
+    timeit
 
-    :param func:
-    :return:
+    Args:
+        func:
+
+    Returns:
+
     """
     import yurlungur
 
@@ -216,8 +228,12 @@ def threads(func):
 def __worker(func):
     """
     thread runner
-    :param func:
-    :return:
+
+    Args:
+        func:
+
+    Returns:
+
     """
     if env.Maya():
         import maya.utils as utils
@@ -250,6 +266,15 @@ def __worker(func):
 
 
 def Windows(func=None):
+    """
+    is Windows expression and decorator
+
+    Args:
+        func:
+
+    Returns:
+
+    """
     if func is None:
         return platform.system() == "Windows"
 
@@ -262,6 +287,15 @@ def Windows(func=None):
 
 
 def Linux(func=None):
+    """
+    is Linux expression and decorator
+
+    Args:
+        func:
+
+    Returns:
+
+    """
     if func is None:
         return platform.system() == "Linux"
 
@@ -274,6 +308,15 @@ def Linux(func=None):
 
 
 def Mac(func=None):
+    """
+    is macOS expression and decorator
+
+    Args:
+        func:
+
+    Returns:
+
+    """
     if func is None:
         return platform.system() == "Darwin"
 

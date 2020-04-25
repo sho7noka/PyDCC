@@ -22,8 +22,9 @@ class MetaAttr(type):
 
 
 class YMObject(object):
-    """command wrapper for any application"""
-
+    """
+    command wrapper for any application
+    """
     if env.Photoshop():
         from yurlungur.adapters import photoshop as ps
         doc = ps.Document()._doc
@@ -72,24 +73,26 @@ class YMObject(object):
 
         return getattr(yurlungur, item, False)
 
-    @property
-    def module(self):
-        return app.application
-
     def eval(self, script):
+        """
+        TODO: optionVar
+        eval script for mel, mxs, hscript, tcl, jsx, lua and c#
+
+        Args:
+            script:
+
+        Returns:
+
+        """
         if env.Maya():
             import maya.mel as mel
             return mel.eval(script)
 
-        if env.Photoshop():
-            return app.application.DoJavascript(script)
-
         if env.Houdini():
             return app.application.hscript(script)
 
-        if env.Max():
-            import MaxPlus
-            return MaxPlus.Core.EvalMAXScript(script)
+        if env.Nuke():
+            return app.application.tcl(script)
 
         if env.Davinci() and self.resolve:
             return self.fusion.GetCurrentComp().Execute(script)
@@ -97,6 +100,16 @@ class YMObject(object):
         if env.Unity():
             from yurlungur.adapters import unity
             return unity.EvalScript(script)
+
+        if env.Max():
+            return app.application.runtime.execute(script)
+
+        if env.Photoshop():
+            return app.application.DoJavascript(script)
+
+    @property
+    def module(self):
+        return app.application
 
 
 # Dynamic Class
@@ -138,11 +151,9 @@ elif env.Substance():
     _YColors = type('_YColors', (app.application.SDValueColorRGBA,), dict())
 
 elif env.Max():
-    import MaxPlus
-
-    _YVector = type('_YVector', (MaxPlus.Point3,), dict())
-    _YMatrix = type('_YMatrix', (MaxPlus.Matrix3,), dict())
-    _YColors = type('_YColors', (MaxPlus.Color,), dict())
+    _YVector = type('_YVector', (app.application.Point3,), dict())
+    _YMatrix = type('_YMatrix', (app.application.Matrix3,), dict())
+    _YColors = type('_YColors', (app.application.Color,), dict())
 
 elif env.Nuke():
     import _nukemath
