@@ -1,13 +1,8 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import sys
-
-try:
-    import os
-    import inspect
-    import fnmatch
-    import traceback
-except:
-    pass
+import os
+import inspect
+import traceback
 
 import yurlungur
 from yurlungur.core import env

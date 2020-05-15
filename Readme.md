@@ -49,26 +49,28 @@ $ pip install PySide2
 ### semantics
 
 ```python
-# Blender
+# Blender Python
 import bpy
-bpy.data.objects["foo"].bar = 1
+bpy.data.objects["foo"].bar = True
 ```
 
 ```sh
 // Maya MEL
-setAttr "foo.bar" 1;
+setAttr "foo.bar" true;
 ```
 
 ```cs
 // Unity C#
 using UnityEngine;
-UnityEngine.GameObject.Find("foo").bar = 1;
+UnityEngine.GameObject.Find("foo").bar = true;
 ```
+
+YNode behaves as a base class for the object.
 
 ```python
 # yurlungur
 import yurlungur as yr
-yr.YNode("foo").bar.set(1)
+yr.YNode("foo").bar.set(True)
 ``` 
 
 ## contribution

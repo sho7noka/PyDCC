@@ -2,12 +2,12 @@
 import os
 import inspect
 import cmath
-from functools import partial
 
 try:
-    from functools import total_ordering
+    from functools import partial, total_ordering
 except ImportError:
     total_ordering = dir
+
 from yurlungur.core.app import YException
 from yurlungur.core.env import Blender, Numpy
 from yurlungur.core.deco import trace

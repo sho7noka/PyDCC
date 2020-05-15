@@ -50,12 +50,12 @@ def __import__(name, globals=None, locals=None, fromlist=None):
     except NameError:
         pass
 
+    # https://pythonnet.github.io/ or https://ironpython.net/
     if "clr" in sys.modules:
         import clr
         clr.AddReference("System.IO")
         import System.IO
 
-        # https://pythonnet.github.io/ or https://ironpython.net/
         try:
             clr.AddReference(name)
         except System.IO.FileNotFoundException:
@@ -85,6 +85,7 @@ def get_pip():
         with urllib2.urlopen("https://raw.github.com/pypa/pip/master/contrib/get-pip.py") as f:
             print(f.read().decode("utf-8"))
         execfile("get-pip.py")
+        os.remove("get-pip.py")
 
     if not getattr(pip, "main", False):
         from pip import _internal as pip

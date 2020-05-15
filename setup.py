@@ -75,6 +75,6 @@ setup(
     packages=["yurlungur"],
     include_package_data=True,
     test_suite='test',
-    cmdclass={'build_ext': CMakeBuild},
-    ext_modules=[CMakeExtension('yurlungur')],
+    # cmdclass={'build_ext': CMakeBuild},
+    # ext_modules=[CMakeExtension('yurlungur')],
 )
