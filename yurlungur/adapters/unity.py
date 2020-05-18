@@ -75,7 +75,7 @@ def Console():
     """
     import System
     for asm in System.AppDomain.CurrentDomain.GetAssemblies():
-        print asm.ToString()
+        print (asm.ToString())
     return clr.UnityEditor.Scripting.Python.PythonConsoleWindow
 
 

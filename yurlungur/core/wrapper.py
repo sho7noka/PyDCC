@@ -124,11 +124,8 @@ if env.Maya():
     _YMatrix = type('_YMatrix', (OM.MMatrix,), dict())
     _YColors = type('_YColors', (OM.MColor,), dict())
 
-    from yurlungur.tool.meta import meta
-
-    if hasattr(meta, "loadPlugin"):
-        for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
-            meta.loadPlugin(plugin, qt=1)
+    for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
+        app.application.loadPlugin(plugin, qt=1)
 
 elif env.Houdini() or env.UE4() or env.Unity():
     _YVector = type('_YVector', (

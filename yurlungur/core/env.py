@@ -10,7 +10,9 @@ try:
     import functools
     import platform
     import code
-    import urllib2
+    import contextlib
+    import textwrap
+    import urllib2 as urllib
 except ImportError:
     import urllib
 
@@ -82,7 +84,7 @@ def get_pip():
     try:
         import pip
     except ImportError:
-        with urllib2.urlopen("https://raw.github.com/pypa/pip/master/contrib/get-pip.py") as f:
+        with urllib.urlopen("https://raw.github.com/pypa/pip/master/contrib/get-pip.py") as f:
             print(f.read().decode("utf-8"))
         execfile("get-pip.py")
         os.remove("get-pip.py")
@@ -102,109 +104,144 @@ class App(object):
 
     def __init__(self, name, version=None):
         d = {
-            "maya": _Maya(version), "photoshop": _Photoshop(version),
-            "houdini": _Houdini(version), "substance": _Substance(version), "3dsmax": _Max(version),
-            "nuke": _Nuke(version), "c4d": _Cinema4D(version), "davinci": None,
-            "blender": _Blender(version), "ue4": _Unreal(version), "unity": None,
+            "maya": _Maya(), "houdini": _Houdini(), "substance": _Substance(),
+            "blender": _Blender(), "ue4": _Unreal(), "unity": _Unity(),
+            "nuke": _Nuke(), "c4d": _Cinema4D(), "davinci": _Davinci(),
+            "3dsmax": _Max(), "photoshop": _Photoshop(),
+            "substance_painter": _SubstancePainter()
         }
         self.app_name = d[name]
-
-    @property
-    def _actions(self):
-        """
-        action list
-        :return: run, shell, end
-        """
-        return self.run, self.shell, self.end
+        self.process = None
 
     def run(self):
         try:
-            self.pop = subprocess.Popen(self.app_name, shell=False)
-            self.pop.communicate()
+            self.process = subprocess.Popen(self.app_name, shell=False)
+            self.process.communicate()
         except (KeyboardInterrupt, SystemExit):
             self.end()
 
-    def end(self):
-        self.pop.terminate()
-
     def shell(self, cmd):
-        """
-        https://qiita.com/it_ks/items/ae1d0ae01d831c2fc9ae
-        :param cmd:
-        :return:
-        """
+        # https://knowledge.autodesk.com/ja/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2018/JPN/Maya-Scripting/files/GUID-83799297-C629-48A8-BCE4-061D3F275215-htm.html
         if "maya" in self.app_name:
-            # https://knowledge.autodesk.com/ja/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2018/JPN/Maya-Scripting/files/GUID-83799297-C629-48A8-BCE4-061D3F275215-htm.html
-            exe = sys.executable
-            multiprocessing.set_executable(
-                os.path.join(os.path.dirname(exe), "mayapy")
-            )
-            multiprocessing.process.ORIGINAL_DIR = os.path.join(
-                os.path.dirname(exe),
-                "../Python/Lib/site-packages"
-            )
-            po = multiprocessing.Pool(4)
+            # exe = sys.executable
+            # multiprocessing.set_executable(
+            #     os.path.join(os.path.dirname(exe), "mayapy")
+            # )
+            # multiprocessing.process.ORIGINAL_DIR = os.path.join(
+            #     os.path.dirname(exe),
+            #     "../Python/Lib/site-packages"
+            # )
+            # po = multiprocessing.Pool(4)
 
-            _cmd = "mayapy -i -c \"import maya.standalone;maya.standalone.initialize(name='python');%s\"" % cmd
+            mayapy = self.app_name.replace("bin/maya", "bin/mayapy")
+            _cmd = "%s -i -c \"import maya.standalone;maya.standalone.initialize(name='python');%s\"" % (mayapy, cmd)
 
+        # https://www.sidefx.com/ja/docs/houdini/hom/commandline.html
+        elif "houdini" in self.app_name:
+            _cmd = "hython -i -c \"%s\"" % cmd
+
+        elif "3dsmax" in self.app_name:
+            if sys.version_info.major > 3:
+                maxpy = os.path.join(os.path.dirname(self.app_name), "Python37/python.exe")
+            else:
+                maxpy = self.app_name.replace("3dsmax.exe", "3dsmaxpy.exe")
+            _cmd = "%s -i -c \"%s\"" % (maxpy, cmd)
+
+        # https://docs.unrealengine.com/ja/Engine/Editor/ScriptingAndAutomation/Python/index.html
         elif "UE4" in self.app_name:
-            # https://docs.unrealengine.com/ja/Engine/Editor/ScriptingAndAutomation/Python/index.html
             with tempfile.NamedTemporaryFile(delete=False) as tf:
                 with open(os.path.join(tf, 'testfile.py'), 'w+b') as fp:
                     fp.write(cmd)
                     _app = os.path.join(os.path.dirname(self.app_name), "UE4Editor-Cmd")
                     _cmd = " ".join([_app, "-run=pythonscript -script={0}".format(fp)])
 
-        elif "houdini" in self.app_name:
-            # https://www.sidefx.com/ja/docs/houdini/hom/commandline.html
-            _cmd = "hython -i -c \"import hou;%s\"" % cmd
-
-        elif "3dsmax" in self.app_name:
-            # http://help.autodesk.com/view/3DSMAX/2018/ENU/?guid=__developer_about_the_3ds_max_python_api_html
-            pass
-
-        elif "substance" in self.app_name:
-            # https://docs.substance3d.com/sat
-            pass
-
-        elif "nuke" in self.app_name:
-            # https://learn.foundry.com/nuke/8.0/content/user_guide/configuring_nuke/command_line_operations.html
-            _cmd = self.app_name + " -t"
-
-        elif "c4d" in self.app_name:
-            # https://developers.maxon.net/docs/Cinema4DPythonSDK/html/manuals/introduction/python_c4dpy.html
-            self.app_name.replace("Cinema 4D", "c4dpy")
-
-        elif "davinci" in self.app_name:
-            # https://www.steakunderwater.com/wesuckless/viewtopic.php?t=2012
-            pass
-
         elif "Blender" in self.app_name:
             # https://docs.blender.org/manual/en/latest/advanced/command_line/arguments.html#python-options
             _cmd = "{0} --python-expr '{1}' -b".format(self.app_name, cmd)
 
+        # https://docs.unity3d.com/jp/460/Manual/CommandLineArguments.html
         elif "unity" in self.app_name:
-            # https://docs.unity3d.com/jp/460/Manual/CommandLineArguments.html
-            _cmd = "-batchmode -executeMethod"
+            with open("Assets/Editor/PythonEditor.cs", "w") as f:
+                f.write(textwrap.dedent("""
+                using System;
+
+                #if UNITY_EDITOR
+                using UnityEditor.Scripting.Python;
+                
+                public static void Exec()
+                {
+                    var args = Environment.GetCommandLineArgs();
+                    
+                    if (args.First().EndsWith(".py"))
+                    {
+                        PythonRunner.RunFile(args.First());
+                    }
+                    else
+                    {
+                        PythonRunner.RunString(args.First());
+                    }
+                }
+                #endif
+                """))
+            _cmd = "%s -batchmode -executeMethod PythonScript.Exec %s" % (self.app_name, cmd)
+
+        # https://learn.foundry.com/nuke/8.0/content/user_guide/configuring_nuke/command_line_operations.html
+        elif "nuke" in self.app_name:
+            _cmd = self.app_name + " -t"
+
+        # https://developers.maxon.net/docs/Cinema4DPythonSDK/html/manuals/introduction/python_c4dpy.html
+        elif "c4d" in self.app_name:
+            self.app_name = self.app_name.replace("Cinema 4D", "c4dpy")
+
+        # https://www.steakunderwater.com/wesuckless/viewtopic.php?t=2012
+        elif "davinci" in self.app_name:
+            pass
 
         try:
-            _cmd = " ".join([self.app_name, "-c", cmd])
             os.system(_cmd)
         except (KeyboardInterrupt, SystemExit):
             return
-        # maya.standalone.uninitialize()
-        # hou.releaseLicense()
+            # maya.standalone.uninitialize()
+            # hou.releaseLicense()
 
-        __import__("yurlungur")
-        variables = globals().copy()
-        variables.update(locals())
-        shell = code.InteractiveConsole(variables)
-        shell.interact()
+        # __import__("yurlungur")
+        # variables = globals().copy()
+        # variables.update(locals())
+        # shell = code.InteractiveConsole(variables)
+        # shell.interact()
+
+    @contextlib.contextmanager
+    def connect(self, port):
+        """
+        https://qiita.com/QUANON/items/c5868b6c65f8062f5876
+        """
+        import yurlungur
+        self.shell(
+            "import sys;sys.path.append(\"%s\");from yurlungur.tool import rpc;rpc.listen(%d)"
+            % (os.path.dirname(os.path.dirname(os.path.abspath(yurlungur.__file__))), port)
+        )
+
+        from yurlungur.tool import rpc
+        try:
+            yield rpc.session(port)
+        finally:
+            print("revert")
+
+    def end(self):
+        self.process.terminate()
+
+    @property
+    def _actions(self):
+        """
+        Returns:
+           run, shell, end, connect
+        """
+        return self.run, self.shell, self.end, self.connect
 
 
 def Qt(func=None):
     """
-    Blender, UE4, Unity, C4D, Davinch, Photoshop
+    Blender, UE4, Unity, C4D
 
     Args:
         func:
@@ -230,6 +267,14 @@ def Qt(func=None):
 
 
 def Numpy(func=None):
+    """
+    Blender, Houdini
+    Args:
+        func:
+
+    Returns:
+
+    """
     try:
         import numpy as nm
         is_numpy = True
@@ -401,11 +446,11 @@ def Max(func=None):
     return wrapper
 
 
-def _Maya(v=2018):
+def _Maya(v=2020):
     d = {
         "Linux": "/usr/Autodesk/maya%d-x64/bin/maya" % v,
         "Windows": "C:/Program Files/Autodesk/Maya%d/bin/maya.exe" % v,
-        "Darwin": "/Applications/Autodesk/maya%d/Maya.app/Contents" % v,
+        "Darwin": "/Applications/Autodesk/maya%d/Maya.app/Contents/bin/maya" % v,
     }
     return os.environ.get("MAYA_LOCATION") or d[platform.system()]
 
@@ -421,7 +466,7 @@ def _Houdini(v="17.5.173"):
 
 def _Substance():
     d = {
-        "Linux": "/usr/autodesk/maya2017-x64",
+        "Linux": "/opt/Allegorithmic/Substance_Designer/Substance Designer",
         "Windows": "C:/Program Files/Allegorithmic/Substance Designer/Substance Designer.exe",
         "Darwin": "/Applications/Substance Designer.app/Contents/MacOS/Substance Designer",
     }
