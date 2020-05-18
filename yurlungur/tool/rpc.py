@@ -1,6 +1,7 @@
 # coding: utf-8
 import sys
 import threading
+import types
 
 if sys.version_info.major >= 3:
     import xmlrpc.server as _xmlrpc_server
@@ -11,8 +12,10 @@ else:
 
 from yurlungur.core.app import application
 from yurlungur.core import env
+from yurlungur.core.deco import trace
 
 
+@trace
 def session(port=18811, server="127.0.0.1", name="hou"):
     """
     rpc session for client
@@ -30,16 +33,17 @@ def session(port=18811, server="127.0.0.1", name="hou"):
         remote_module = connection.modules[name]
         return remote_module
 
-    # proxy = _xmlrpc_client.ServerProxy("http://localhost:8000/")
+    proxy = _xmlrpc_client.ServerProxy('http://%s:%d' % (server, port))
     # with open("fetched_python_logo.jpg", "wb") as handle:
     #     handle.write(proxy.python_logo().data)
-
-    proxy = _xmlrpc_client.ServerProxy('http://127.0.0.1:%d' % port)
     return proxy
 
 
+@trace
 def listen(port=18811, server="127.0.0.1", use_thread=True, quiet=True):
     """
+    register_function は　オブジェクトを解釈しないので全入力が必要
+
     rpc listen for server
     Args:
         port:
@@ -71,16 +75,48 @@ def listen(port=18811, server="127.0.0.1", use_thread=True, quiet=True):
         rpyc.servers.classic_server.serve_threaded(options)
         return
 
-    # if env.Maya():
-    # import maya.cmds as cmds
-    # cmds.commandPort(port)
-    # runtime command
-    # return
-
     client = _xmlrpc_server.SimpleXMLRPCServer((server, port), allow_none=True)
     print("Listening on port %s %d..." % (application.__name__, port))
-    client.register_function(_mod, "yurlungur")
-    client.register_function(_bin, 'python_logo')
+
+    import yurlungur
+    for i in dir(yurlungur):
+        # Ignore internal stuff
+        if i[0] == "_" or i == "Qt":
+            continue
+
+        o = getattr(yurlungur, i)
+        if type(o) == types.FunctionType:
+            client.register_function(o, "yurlungur.%s" % i)
+
+        else:
+            try:
+                for m in dir(o) or []:
+                    if m[0] == "_":
+                        continue
+
+                    meth = getattr(o, m)
+                    if (type(meth) not in (types.MethodType, types.FunctionType)):
+                        continue
+
+                    # if isinstance(meth, hou.EnumValue):
+                    #     client.register_function(meth.__repr__, "hou.%s.%s.__repr__" % (i, m))
+                    if (type(o) in (type, type) and type(meth) == types.MethodType):
+                        client.register_function(meth, "typeMethods.yurlungur.%s.%s" % (i, m))
+                    else:
+                        for m in dir(o):
+                            meth = getattr(o, m)
+                            if (type(meth) not in (types.MethodType, types.FunctionType)) or m == "_":
+                                continue
+
+                            # if isinstance(meth, hou.EnumValue):
+                            #     client.register_function(meth.__repr__, "hou.%s.%s.__repr__" % (i, m))
+                            if (type(o) in (type, type) and type(meth) == types.MethodType):
+                                client.register_function(meth, "typeMethods.yurlungur.%s.%s" % (i, m))
+                            else:
+                                client.register_function(meth, "yurlungur.%s.%s" % (i, m))
+            except TypeError:
+                pass
+
     client.register_introspection_functions()
     client.serve_forever()
 

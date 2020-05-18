@@ -15,19 +15,21 @@ Yurlungur is common interface which adapted each application for universal wrapp
 Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 
 ### future
-* HOM (Houdini Object Model) like command wrapper.
+Yurlungur is pure Python and can be used **synchronously** in mixed Python2(!!!) and Python3 environments with RPC.
+
+* Houdini Object Model like command wrapper.
 * Qt for Python shorten accessor.
-* Useful snippet for Game&VFX technical artist.
+* Useful snippets for Game&VFX technical artist.
 
 ### available
-|       | Node | Attribute | Data |
+|       | Node | Attribute | Sync |
 | ---- | --- | --- | --- |
-| Maya (2016~) | ○ | ○ | ☓ |
+| Maya (2016~) | ○ | ○ | ○ |
 | Substance Designer (2018.1.2~) | ○ | ○ | ☓ |
 | Houdini (16~) | ○ | ○ | ☓ |
-| Blender (2.80~) | ○ | ○ | ☓ |
+| Blender (2.80~) | ○ | ○ | ○ |
 | Unreal Engine (4.22~) | ○ | ○ | ☓ |
-| Unity (2019.3~) | ○ | ○ | ☓ |
+| Unity (2019.1~) | ○ | ○ | ○ |
 | Nuke (10~) | ○ | ○ | ☓ |
 | Cinema4D (R21~) | ○ | ○ | ☓ |
 | Davinci Resolve(&Fusion) (15~) | ○ | ○ | ☓ |

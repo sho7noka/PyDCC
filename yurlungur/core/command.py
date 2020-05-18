@@ -9,33 +9,43 @@ from yurlungur.core.app import YException
 __all__ = ["file", "cmd", "node"]
 
 
-# class _NodeType(object):
-#     def __getattr__(self, item):
-#         if hasattr(meta, "types"):
-#             nodes = fnmatch.filter(dir(meta.types), str(item))
-#         else:
-#             nodes = self.findNodes(item)
-#
-#         for node in nodes:
-#             setattr(self, str(item), YNode(node))
-#
-#         return YNode(item)
-#
-#     def findNodes(self, pattern):
-#         if hasattr(meta, "listNodeTypes"):
-#             # http://help.autodesk.com/cloudhelp/2016/JPN/Maya-Tech-Docs/CommandsPython/shadingNode.html
-#             categories = ["geometry", "camera", "light", "utility", "color", "shader", "texture", "rendering",
-#                           "postprocess"]
-#             # meta.allNodeTypes(ia=1)
-#             for category in categories:
-#                 yield fnmatch.filter(meta.listNodeTypes(category), pattern)
-#
-#         if hasattr(meta, "nodeTypes"):
-#             for category in meta.nodeTypeCategories().keys():
-#                 yield fnmatch.filter(
-#                     meta.nodeTypeCategories()[category].nodeTypes().keys(),
-#                     pattern
-#                 )
+class _NodeType(object):
+    def __getattr__(self, item):
+        if getattr(meta, "types", False):
+            nodes = fnmatch.filter(dir(meta.types), str(item))
+        else:
+            nodes = self.findNodes(item)
+
+        for node in nodes:
+            setattr(self, str(item), YNode(node))
+
+        return YNode(item)
+
+    def findNodes(self, pattern):
+        if getattr(meta, "listNodeTypes", False):
+            # http://help.autodesk.com/cloudhelp/2016/JPN/Maya-Tech-Docs/CommandsPython/shadingNode.html
+            categories = ["geometry", "camera", "light",
+                          "utility", "color", "shader", "texture", "rendering", "postprocess"]
+
+            # meta.allNodeTypes(ia=1)
+            for category in categories:
+                yield fnmatch.filter(meta.listNodeTypes(category), pattern)
+
+        if getattr(meta, "hda", False):
+            for category in meta.nodeTypeCategories().keys():
+                yield fnmatch.filter(
+                    meta.nodeTypeCategories()[category].nodeTypes().keys(),
+                    pattern
+                )
+
+        if getattr(meta, "SDNode", False):
+            pass
+
+        if getattr(meta, "knob", False):
+            pass
+
+        if getattr(meta, "fusion", False):
+            pass
 
 
 class Command(object):
@@ -79,6 +89,7 @@ def _select(cls, *args, **kwargs):
 node = YNode()
 YNode.selection = _select
 YNode.parent = None
+# YNode.type = _NodeType
 
 cmd = Command()
 Command.ls = _ls
@@ -100,7 +111,7 @@ def _alembicImporter(cls, *args, **kwargs):
         return meta.project.create(*args, **kwargs)
 
     if getattr(meta, "hda", False):
-        geo = yr.YNode("obj").create("geo")
+        geo = YNode("obj").create("geo")
         abc = geo.create("alembic")
         abc.fileName.set(*args)
         return cls(*args)
@@ -155,11 +166,11 @@ def _fbxImporter(cls, *args, **kwargs):
         return meta.project.create(*args, **kwargs)
 
     if getattr(meta, 'uclass', False):
-        data = unreal.AutomatedAssetImportData()
+        data = meta.AutomatedAssetImportData()
         data.set_editor_property('filenames', *args)
         for k, v in kwargs:
             data.set_editor_property(k, v)
-        factory = unreal.FbxSceneImportFactory()
+        factory = meta.FbxSceneImportFactory()
         data.set_editor_property('factory', factory)
 
         meta.tools.import_assets_automated(data)
@@ -185,20 +196,20 @@ def _fbxExporter(cls, *args, **kwargs):
     raise YException
 
 
-def _gltfImporter(cls, *args, **kwargs):
-    pass
-
-
-def _gltfExporter(cls, *args, **kwargs):
-    pass
-
-
-def _usdImporter(cls, *args, **kwargs):
-    pass
-
-
-def _usdExporter(cls, *args, **kwargs):
-    pass
+# def _gltfImporter(cls, *args, **kwargs):
+#     pass
+#
+#
+# def _gltfExporter(cls, *args, **kwargs):
+#     pass
+#
+#
+# def _usdImporter(cls, *args, **kwargs):
+#     pass
+#
+#
+# def _usdExporter(cls, *args, **kwargs):
+#     pass
 
 
 # Monkey-Patch for file
@@ -207,9 +218,7 @@ YFile.abcImporter = _alembicImporter
 YFile.abcExporter = _alembicExporter
 YFile.fbxImporter = _fbxImporter
 YFile.fbxExporter = _fbxExporter
-YFile.gltfImporter = _gltfImporter
-YFile.gltfExporter = _gltfExporter
-YFile.usdImporter = _usdImporter
-YFile.usdExporter = _usdExporter
-
-# YType = _NodeType()
+# YFile.gltfImporter = _gltfImporter
+# YFile.gltfExporter = _gltfExporter
+# YFile.usdImporter = _usdImporter
+# YFile.usdExporter = _usdExporter

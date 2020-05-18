@@ -81,8 +81,6 @@ class YObject(_YObject):
         if getattr(meta, "textureset", False):
             return
 
-        raise YException
-
     @trace
     def set(self, *args, **kwargs):
         """
@@ -241,8 +239,6 @@ class YObject(_YObject):
         if getattr(meta, "textureset", False):
             return
 
-        raise YException
-
     @trace
     def attr(self, val, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -318,8 +314,6 @@ class YObject(_YObject):
         if getattr(meta, "textureset", False):
             return
 
-        raise YException
-
     def __dir__(self):
         return self.attrs
 
@@ -380,8 +374,6 @@ class YObject(_YObject):
 
         if getattr(meta, "textureset", False):
             return
-
-        raise YException
 
     @trace
     def create(self, *args, **kwargs):
@@ -489,8 +481,6 @@ class YObject(_YObject):
         if getattr(meta, "textureset", False):
             return
 
-        raise YException
-
     @trace
     def delete(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -538,8 +528,6 @@ class YObject(_YObject):
 
         if getattr(meta, "textureset", False):
             return
-
-        raise YException
 
     @trace
     def instance(self, *args, **kwarg):
@@ -603,8 +591,6 @@ class YObject(_YObject):
                 asset = meta.editor.AssetDatabaseLoadAssetAtPath(*args[1:])
                 meta.editor.EditorUtility.SetDirty(asset)
                 return YObject(asset.name)
-
-        raise YException
 
     @trace
     def select(self, *args, **kwargs):
@@ -694,8 +680,6 @@ class YObject(_YObject):
         if getattr(meta, "Debug", False):
             return [YNode(go.name) for go in meta.editor.Selection.gameObjects]
 
-        raise YException
-
     @trace
     def hide(self, on=True):
         if getattr(meta, "data", False):
@@ -730,8 +714,6 @@ class YObject(_YObject):
 
         if getattr(meta, "Debug", False):
             return meta.engine.GameObject.Find(self.name).SetActive(not on)
-
-        raise YException
 
     @trace
     def parent(self, *args, **kwarg):
@@ -795,8 +777,6 @@ class YObject(_YObject):
             else:
                 return YObject(transform.parent.name) if transform.parent else None
 
-        raise YException
-
     @trace
     def children(self, *args, **kwarg):
         if getattr(meta, "SDNode", False):
@@ -851,8 +831,6 @@ class YObject(_YObject):
             transform = meta.engine.GameObject.Find(self.item).transform
             return [YObject(transform.GetChild(i).name) for i in range(transform.childCount)]
 
-        raise YException
-
     @trace
     def geom(self):
         """geometry or ndarray"""
@@ -874,17 +852,13 @@ class YObject(_YObject):
 
             return None
 
-        raise YException
-
     @trace
     def anim(self):
         """keyframes or otio"""
-        raise YException
 
     @trace
     def raw_data(self):
         """shader or pil"""
-        raise YException
 
 
 class YNode(YObject):
@@ -925,8 +899,6 @@ class YNode(YObject):
                     .ConnectInput(*args, **kwargs)
             )
 
-        raise YException
-
     @trace
     def disconnect(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -959,8 +931,6 @@ class YNode(YObject):
                 meta.fusion.GetCurrentComp().FindTool(self.name), "Input", None
             )
 
-        raise YException
-
     @trace
     def inputs(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -989,8 +959,6 @@ class YNode(YObject):
                     .GetAttrs()
             )
 
-        raise YException
-
     @trace
     def outputs(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -1015,8 +983,6 @@ class YNode(YObject):
                     .values()[0]
                     .GetAttrs()
             )
-
-        raise YException
 
 
 @total_ordering
@@ -1141,8 +1107,6 @@ class YAttr(_YAttr):
         if getattr(meta, "textureset", False):
             return
 
-        raise YException
-
     @trace
     def __call__(self, *args, **kwargs):
         """
@@ -1179,8 +1143,6 @@ class YAttr(_YAttr):
         if getattr(meta, "data", False):
             return setattr(meta.data.objects[self.obj], "lock_" + self.val, on)
 
-        raise YException
-
     @trace
     def hide(self, on=True):
         if getattr(meta, "setAttr", False):
@@ -1193,8 +1155,6 @@ class YAttr(_YAttr):
 
         if getattr(meta, "knob", False):
             return meta.toNode(self.obj)[self.val].setVisible(not on)
-
-        raise YException
 
     @property
     def vector(self):
@@ -1290,8 +1250,6 @@ class YFile(_YObject):
             else:
                 return meta.project.create(*args, **kwargs)
 
-        raise YException
-
     @classmethod
     def save(cls, *args, **kwargs):
         from yurlungur.core.command import file
@@ -1348,8 +1306,6 @@ class YFile(_YObject):
             else:
                 return meta.export.export_project_textures(**kwargs)
 
-        raise YException
-
     @property
     def current(self):
         if getattr(meta, "sbs", False):
@@ -1397,8 +1353,6 @@ class YFile(_YObject):
 
         if getattr(meta, "textureset", False):
             return meta.project.file_path()
-
-        raise YException
 
 
 if getattr(meta, "C4DAtom", False):

@@ -20,9 +20,9 @@ class CallBack(object):
 @env.Qt
 def main_window():
     """
-    >>> ptr = yurlungur.ui.main_window()
+    >>> ptr = yurlungur.window.main_window()
     >>> view = yurlungur.Qt.QMainWindow(ptr)
-    >>> memoryview.show()
+    >>> yurlungur.window.show(view)
 
     :return:
     """
@@ -67,7 +67,7 @@ def main_window():
 def show(view):
     """
     >>> view = yurlungur.Qt.QWidget()
-    >>> yurlungur.ui.show(view)
+    >>> yurlungur.window.show(view)
 
     :param view:
     :return:
