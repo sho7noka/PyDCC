@@ -2,9 +2,9 @@
 try:
     import bpy
 except (ImportError, SyntaxError):
-    from yurlungur.core.env import App as _
+    from yurlungur.core.env import App as __App
 
-    run, shell, end = _("blender")._actions
+    run, shell, end, connect = __App("blender")._actions
 
 
 class Project(object):

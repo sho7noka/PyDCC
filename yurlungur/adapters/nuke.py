@@ -3,9 +3,9 @@
 try:
     from hiero import core
 except ImportError:
-    from yurlungur.core.env import App as _
+    from yurlungur.core.env import App as __App
 
-    run, shell, end = _("nuke")._actions
+    run, shell, end, connect = __App("nuke")._actions
 
 class Project(object):
     def __init__(self, project):

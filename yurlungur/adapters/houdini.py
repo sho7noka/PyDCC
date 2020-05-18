@@ -2,9 +2,9 @@
 try:
     import hou
 except ImportError:
-    from yurlungur.core.env import App as _
+    from yurlungur.core.env import App as __App
 
-    run, shell, end = _("houdini")._actions
+    run, shell, end, connect = __App("houdini")._actions
 
 
 def enableHouModule():

@@ -15,6 +15,6 @@ try:
         graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
 
 except ImportError:
-    from yurlungur.core.env import App as _
+    from yurlungur.core.env import App as __App
 
-    run, shell, end = _("substance")._actions
+    run, _, end, _ = __App("substance")._actions

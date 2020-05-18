@@ -47,9 +47,9 @@ try:
         raise Exception
 
 except ImportError:
-    from yurlungur.core.env import App as _
+    from yurlungur.core.env import App as __App
 
-    run, shell, end = _("ue4")._actions
+    run, shell, end, _ = __App("ue4")._actions
 
 
 class Project(object):

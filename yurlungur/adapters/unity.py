@@ -6,11 +6,21 @@ try:
 
     getattr(UnityEngine, "Debug")
 
-except (ImportError, AttributeError):
+except ImportError:
+    import json
     import textwrap
-    from yurlungur.core.env import App as _
+    import collections
+    from yurlungur.core.env import App as __App
 
-    run, shell, end = _("unity")._actions
+    run, _, end, _ = __App("unity")._actions
+
+
+    def manifest(path="Packages/manifest.json", version="2.0.1-preview.2"):
+        with open(path) as f:
+            df = json.load(f, object_pairs_hook=collections.OrderedDict)
+            df["dependencies"]["com.unity.scripting.python"] = version
+            with open(path, 'w') as w:
+                json.dump(df, w, indent=4)
 
 
     def initialize_package(path):

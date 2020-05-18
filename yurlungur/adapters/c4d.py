@@ -2,9 +2,9 @@
 try:
     import c4d
 except ImportError:
-    from yurlungur.core.env import App as _
+    from yurlungur.core.env import App as __App
 
-    run, shell, end = _("c4d")._actions
+    run, shell, end, connect = __App("c4d")._actions
 
 
 class Project(object):
