@@ -2,7 +2,7 @@
 import keyword
 import yurlungur as yr
 
-yr.meta.__make_completer("UnityEngine")
+# yr.meta.__make_completer("UnityEngine")
 
 
 class _Completer(object):

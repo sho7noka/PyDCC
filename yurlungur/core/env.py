@@ -119,6 +119,8 @@ class App(object):
             self.process.communicate()
         except (KeyboardInterrupt, SystemExit):
             self.end()
+        except OSError:
+            raise
 
     def shell(self, cmd):
         # https://knowledge.autodesk.com/ja/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2018/JPN/Maya-Scripting/files/GUID-83799297-C629-48A8-BCE4-061D3F275215-htm.html

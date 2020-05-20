@@ -1,6 +1,6 @@
 # coding: utf-8
 try:
-    import substance_painter
+    import substance_painter as sp
 except ImportError:
     from yurlungur.core.env import App as __App
 

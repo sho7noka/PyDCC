@@ -75,7 +75,7 @@ def listen(port=18811, server="127.0.0.1", use_thread=True, quiet=True):
         rpyc.servers.classic_server.serve_threaded(options)
         return
 
-    client = _xmlrpc_server.SimpleXMLRPCServer((server, port), allow_none=True)
+    server = _xmlrpc_server.SimpleXMLRPCServer((server, port), allow_none=True, logRequests=False)
     print("Listening on port %s %d..." % (application.__name__, port))
 
     import yurlungur
@@ -86,7 +86,7 @@ def listen(port=18811, server="127.0.0.1", use_thread=True, quiet=True):
 
         o = getattr(yurlungur, i)
         if type(o) == types.FunctionType:
-            client.register_function(o, "yurlungur.%s" % i)
+            server.register_function(o, "yurlungur.%s" % i)
 
         else:
             try:
@@ -101,7 +101,7 @@ def listen(port=18811, server="127.0.0.1", use_thread=True, quiet=True):
                     # if isinstance(meth, hou.EnumValue):
                     #     client.register_function(meth.__repr__, "hou.%s.%s.__repr__" % (i, m))
                     if (type(o) in (type, type) and type(meth) == types.MethodType):
-                        client.register_function(meth, "typeMethods.yurlungur.%s.%s" % (i, m))
+                        server.register_function(meth, "typeMethods.yurlungur.%s.%s" % (i, m))
                     else:
                         for m in dir(o):
                             meth = getattr(o, m)
@@ -111,14 +111,15 @@ def listen(port=18811, server="127.0.0.1", use_thread=True, quiet=True):
                             # if isinstance(meth, hou.EnumValue):
                             #     client.register_function(meth.__repr__, "hou.%s.%s.__repr__" % (i, m))
                             if (type(o) in (type, type) and type(meth) == types.MethodType):
-                                client.register_function(meth, "typeMethods.yurlungur.%s.%s" % (i, m))
+                                server.register_function(meth, "typeMethods.yurlungur.%s.%s" % (i, m))
                             else:
-                                client.register_function(meth, "yurlungur.%s.%s" % (i, m))
+                                server.register_function(meth, "yurlungur.%s.%s" % (i, m))
             except TypeError:
                 pass
 
-    client.register_introspection_functions()
-    client.serve_forever()
+    server.register_function(server.shutdown, "close")
+    server.register_introspection_functions()
+    server.serve_forever()
 
 
 def _bin():

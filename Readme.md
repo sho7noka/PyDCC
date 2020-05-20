@@ -15,7 +15,7 @@ Yurlungur is common interface which adapted each application for universal wrapp
 Yurlungur is inspired by [PyMEL](https://github.com/LumaPictures/pymel).
 
 ### future
-Yurlungur is pure Python and can be used **synchronously** in mixed Python2(!!!) and Python3 environments with RPC.
+Yurlungur is pure Python and can be used **synchronously** in mixed Python2 and Python3 environments with RPC.
 
 * Houdini Object Model like command wrapper.
 * Qt for Python shorten accessor.
