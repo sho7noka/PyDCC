@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+from yurlungur.core.env import App as __App
 
 
 class Render(object):
@@ -147,7 +148,10 @@ class Item(object):
     def delete(self, name):
         return self.track.DeleteFusionCompByName(name)
 
+
 # clips
 # clips = resolve.GetMediaStorage().AddItemsToMediaPool(paths)
 # clips.GetClipProperty()
 # clips.SetClipProperty(n, v)
+
+run, _, end, _ = __App("davinci")._actions

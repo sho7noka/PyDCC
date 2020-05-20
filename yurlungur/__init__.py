@@ -8,7 +8,7 @@ __all__ = []
 __version__ = "0.9.8"
 
 from yurlungur.core import *  # noQA
-from yurlungur.tool import meta, window  # noQA
+from yurlungur.tool.meta import meta  # noQA
 from yurlungur.tool.standalone import *  # noQA
 
 # info

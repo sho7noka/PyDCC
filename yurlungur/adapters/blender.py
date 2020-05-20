@@ -1,7 +1,9 @@
 # coding: utf-8
+import sys
+
 try:
-    import bpy
-except (ImportError, SyntaxError):
+    sys.modules[__name__] = sys.modules["bpy"]
+except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
     run, shell, end, connect = __App("blender")._actions

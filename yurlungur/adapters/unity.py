@@ -1,12 +1,14 @@
 # coding: utf-8
+import sys
+
 try:
     import clr
     import UnityEngine
     import UnityEditor
 
     getattr(UnityEngine, "Debug")
-
-except ImportError:
+    sys.modules[__name__] = sys.modules["UnityEngine"]
+except (ImportError, KeyError):
     import json
     import textwrap
     import collections

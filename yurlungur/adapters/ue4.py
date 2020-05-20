@@ -1,5 +1,6 @@
 # coding: utf-8
 # http://kinnaji.com/2019/12/16/pythoncsvoutput/
+import sys
 
 try:
     import unreal
@@ -46,7 +47,9 @@ try:
 
         raise Exception
 
-except ImportError:
+
+    sys.modules[__name__] = sys.modules["unreal"]
+except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
     run, shell, end, _ = __App("ue4")._actions

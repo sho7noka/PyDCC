@@ -1,8 +1,9 @@
 # coding: utf-8
 import os
-from yurlungur.core import deco, env
+from yurlungur.core import env
+from yurlungur.core.deco import Windows, Mac
 
-if deco.Windows():
+if Windows():
     if not env.__import__("comtypes"):
         env.pip.main(["install", "comtypes"])
 
@@ -14,14 +15,21 @@ if deco.Windows():
         setattr(app, "isRunning", True)
     psd = Photoshop
 
-elif deco.Mac():
+elif Mac():
     if not env.__import__("ScriptingBridge"):
-        env.pip.main(["install", "pyobjc-framework-ScriptingBridge"])
+        if env.Maya():
+            cmd = env._Maya().replace("bin/maya", "bin/mayapy") + " -m pip install pyobjc-framework-ScriptingBridge"
+            os.system(cmd)
+        else:
+            env.pip.main(["install", "pyobjc-framework-ScriptingBridge"])
 
     from ScriptingBridge import SBApplication
 
     app = SBApplication.applicationWithBundleIdentifier_("com.adobe.photoshop")
     psd = None
+
+run = None
+end = None
 
 
 class Document(object):
@@ -30,17 +38,17 @@ class Document(object):
     """
 
     def __init__(self):
-        self._doc = app.activeDocument if deco.Windows() else app.currentDocument()
+        self._doc = app.activeDocument if Windows() else app.currentDocument()
 
     def __repr__(self):
-        return self._doc.name if deco.Windows() else self._doc.name()
+        return self._doc.name if Windows() else self._doc.name()
 
     def __getitem__(self, val):
         if isinstance(val, int):
-            self._doc = app.documents[val] if deco.Windows() else app.documents()[val]
+            self._doc = app.documents[val] if Windows() else app.documents()[val]
 
         if isinstance(val, str):
-            if deco.Windows():
+            if Windows():
                 for i, doc in enumerate(app.documents):
                     if doc.name == val:
                         self._doc = app.documents[i]
@@ -63,21 +71,21 @@ class Layer(object):
     def __init__(self, document):
         self._doc = document
         self._layer = (
-            self._doc.activeLayer if deco.Windows() else self._doc.currentLayer()
+            self._doc.activeLayer if Windows() else self._doc.currentLayer()
         )
 
     def __repr__(self):
-        return str(self._layer.name if deco.Windows() else self._layer.name())
+        return str(self._layer.name if Windows() else self._layer.name())
 
     def __getitem__(self, val):
         if isinstance(val, int):
             self._layer = (
                 self._doc.artLayers[val]
-                if deco.Windows() else self._doc.artLayers()[val]
+                if Windows() else self._doc.artLayers()[val]
             )
 
         if isinstance(val, str):
-            if deco.Windows():
+            if Windows():
                 for layer in self._doc.artLayers:
                     if layer.name == val:
                         self._layer = layer
@@ -97,7 +105,7 @@ def do(cmd):
     """
     assert len(cmd) == 4 and ("'" not in cmd)
 
-    if deco.Windows():
+    if Windows():
         app.DoJavaScript("""
             executeAction(charIDToTypeID("%s"), undefined, DialogModes.NO);
         """ % cmd)

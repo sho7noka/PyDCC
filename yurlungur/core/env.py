@@ -115,12 +115,13 @@ class App(object):
 
     def run(self):
         try:
-            self.process = subprocess.Popen(self.app_name, shell=False)
-            self.process.communicate()
+            self.process = subprocess.Popen(self.app_name, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            while self.process.poll() is None:
+                print(self.process.stdout.readline().decode().strip())
         except (KeyboardInterrupt, SystemExit):
             self.end()
         except OSError:
-            raise
+            print("%s is not found" % self.app_name)
 
     def shell(self, cmd):
         # https://knowledge.autodesk.com/ja/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2018/JPN/Maya-Scripting/files/GUID-83799297-C629-48A8-BCE4-061D3F275215-htm.html
@@ -202,7 +203,7 @@ class App(object):
         try:
             os.system(_cmd)
         except (KeyboardInterrupt, SystemExit):
-            return
+            raise
             # maya.standalone.uninitialize()
             # hou.releaseLicense()
 
@@ -454,7 +455,7 @@ def _Maya(v=2020):
         "Windows": "C:/Program Files/Autodesk/Maya%d/bin/maya.exe" % v,
         "Darwin": "/Applications/Autodesk/maya%d/Maya.app/Contents/bin/maya" % v,
     }
-    return os.environ.get("MAYA_LOCATION") or d[platform.system()]
+    return d[platform.system()]
 
 
 def _Houdini(v="17.5.173"):
@@ -521,7 +522,7 @@ def _SubstancePainter():
     d = {
         "Linux": "/opt/Allegorithmic/Substance_Painter/Substance Painter",
         "Windows": "C:/Program Files/Allegorithmic/Substance Painter/Substance Painter.exe",
-        "Darwin": "/Applications/Substance Painter.app/Contents/MacOS/Substance Painter"
+        "Darwin": "/Applications/Substance\ Painter.app/Contents/MacOS/Substance\ Painter"
     }
     return d[platform.system()]
 

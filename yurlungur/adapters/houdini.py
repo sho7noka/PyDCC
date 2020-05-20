@@ -1,7 +1,9 @@
 # coding: utf-8
+import sys
+
 try:
-    import hou
-except ImportError:
+    sys.modules[__name__] = sys.modules["hou"]
+except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
     run, shell, end, connect = __App("houdini")._actions

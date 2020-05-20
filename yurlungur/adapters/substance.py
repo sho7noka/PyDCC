@@ -1,4 +1,6 @@
 # coding: utf-8
+import sys
+
 try:
     import sd
     from sd.api.sdproperty import SDPropertyCategory
@@ -14,7 +16,8 @@ try:
     else:
         graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
 
-except ImportError:
+    sys.modules[__name__] = sys.modules["sd"]
+except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
     run, _, end, _ = __App("substance")._actions
