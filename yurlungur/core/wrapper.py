@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import yurlungur
-from yurlungur.core import app, env
+from yurlungur.core.app import application
+from yurlungur.core import env
 
 
 class MetaObject(type):
@@ -47,7 +48,7 @@ class YMObject(object):
         manager = sd.manager
 
     if env.C4D():
-        doc = app.application.documents.GetActiveDocument()
+        doc = application.documents.GetActiveDocument()
 
     if env.Davinci():
         resolve = env.__import__("DaVinciResolveScript").scriptapp("Resolve")
@@ -60,14 +61,14 @@ class YMObject(object):
             from inspect import getmembers
 
         except ImportError:
-            setattr(yurlungur, item, getattr(app.application, item))
-            return getattr(app.application, item)
+            setattr(yurlungur, item, getattr(application, item))
+            return getattr(application, item)
 
-        for cmd, _ in getmembers(app.application):
+        for cmd, _ in getmembers(application):
             if cmd == item:
                 setattr(
                     yurlungur, cmd,
-                    (lambda str: dict(getmembers(app.application))[str])(cmd)
+                    (lambda str: dict(getmembers(application))[str])(cmd)
                 )
                 return getattr(yurlungur, item)
 
@@ -89,10 +90,10 @@ class YMObject(object):
             return mel.eval(script)
 
         if env.Houdini():
-            return app.application.hscript(script)
+            return application.hscript(script)
 
         if env.Nuke():
-            return app.application.tcl(script)
+            return application.tcl(script)
 
         if env.Davinci() and self.resolve:
             return self.fusion.GetCurrentComp().Execute(script)
@@ -102,14 +103,14 @@ class YMObject(object):
             return unity.EvalScript(script)
 
         if env.Max():
-            return app.application.runtime.execute(script)
+            return application.runtime.execute(script)
 
         if env.Photoshop():
-            return app.application.DoJavascript(script)
+            return application.DoJavascript(script)
 
     @property
     def module(self):
-        return app.application
+        return application
 
 
 # Dynamic Class
@@ -125,32 +126,32 @@ if env.Maya():
     _YColors = type('_YColors', (OM.MColor,), dict())
 
     for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
-        app.application.loadPlugin(plugin, qt=1)
+        application.loadPlugin(plugin, qt=1)
 
 elif env.Houdini() or env.UE4() or env.Unity():
     _YVector = type('_YVector', (
-        app.application.Vector if hasattr(app.application, "Vector") else app.application.Vector3,
+        application.Vector if hasattr(application, "Vector") else application.Vector3,
     ), dict())
 
     if env.Unity():
         pass
-        # _YMatrix = type('_YMatrix', (app.application.Matrix4x4), dict())
+        # _YMatrix = type('_YMatrix', (application.Matrix4x4), dict())
     else:
         _YMatrix = type('_YMatrix', (
-            app.application.Matrix if hasattr(app.application, "Matrix") else app.application.Matrix4,
+            application.Matrix if hasattr(application, "Matrix") else application.Matrix4,
         ), dict())
 
-    _YColors = type('_YColors', (app.application.Color,), dict())
+    _YColors = type('_YColors', (application.Color,), dict())
 
 elif env.Substance():
-    _YVector = type('_YVector', (app.application.SDValueVector,), dict())
-    _YMatrix = type('_YMatrix', (app.application.SDValueMatrix,), dict())
-    _YColors = type('_YColors', (app.application.SDValueColorRGBA,), dict())
+    _YVector = type('_YVector', (application.SDValueVector,), dict())
+    _YMatrix = type('_YMatrix', (application.SDValueMatrix,), dict())
+    _YColors = type('_YColors', (application.SDValueColorRGBA,), dict())
 
 elif env.Max():
-    _YVector = type('_YVector', (app.application.Point3,), dict())
-    _YMatrix = type('_YMatrix', (app.application.Matrix3,), dict())
-    _YColors = type('_YColors', (app.application.Color,), dict())
+    _YVector = type('_YVector', (application.Point3,), dict())
+    _YMatrix = type('_YMatrix', (application.Matrix3,), dict())
+    _YColors = type('_YColors', (application.Color,), dict())
 
 elif env.Nuke():
     import _nukemath

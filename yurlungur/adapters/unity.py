@@ -3,11 +3,11 @@ import sys
 
 try:
     import clr
-    import UnityEngine
-    import UnityEditor
+    import UnityEngine as UnityEngine
+    import UnityEditor as UnityEditor
 
     getattr(UnityEngine, "Debug")
-    sys.modules[__name__] = sys.modules["UnityEngine"]
+
 except (ImportError, KeyError):
     import json
     import textwrap
