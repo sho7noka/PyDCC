@@ -1,13 +1,14 @@
 # coding: utf-8
 import os
+import functools
 from yurlungur.core import env
 from yurlungur.core.deco import Windows, Mac
 
 if Windows():
     if not env.__import__("comtypes"):
-        env.pip.main(["install", "comtypes"])
+        env.set("comtypes")
 
-    from comtypes.client import GetActiveObject
+    from comtypes.client import GetActiveObject, SetActiveObject
     from comtypes.gen import Photoshop
 
     app = GetActiveObject("Photoshop.Application")
@@ -17,19 +18,40 @@ if Windows():
 
 elif Mac():
     if not env.__import__("ScriptingBridge"):
-        if env.Maya():
-            cmd = env._Maya().replace("bin/maya", "bin/mayapy") + " -m pip install pyobjc-framework-ScriptingBridge"
-            os.system(cmd)
-        else:
-            env.pip.main(["install", "pyobjc-framework-ScriptingBridge"])
+        env.set("pyobjc-framework-ScriptingBridge")
 
     from ScriptingBridge import SBApplication
 
     app = SBApplication.applicationWithBundleIdentifier_("com.adobe.photoshop")
     psd = None
 
-run = None
-end = None
+
+def do(cmd):
+    """
+    photoshop script runner
+
+    Args:
+        cmd: ActionDescriptor
+
+    Returns:
+
+    """
+    assert len(cmd) == 4 and ("'" not in cmd)
+
+    if Windows():
+        app.DoJavaScript("""
+            executeAction(charIDToTypeID("%s"), undefined, DialogModes.NO);
+        """ % cmd)
+    else:
+        osa = "osascript -e "
+        osa += "'tell application \"%s\" " % str(app).split("\"")[1]
+        osa += "to do javascript "
+        osa += "\"executeAction(charIDToTypeID(\\\"%s\\\"), undefined, DialogModes.NO);\"'" % cmd
+        os.system(osa)
+
+
+run = SetActiveObject("Photoshop.Application") if Windows() else app.activate
+end = functools.partial(do, "quit")
 
 
 class Document(object):
@@ -97,21 +119,3 @@ class Layer(object):
 
     def rmv(self):
         self._layer.delete()
-
-
-def do(cmd):
-    """
-    photoshop script runner
-    """
-    assert len(cmd) == 4 and ("'" not in cmd)
-
-    if Windows():
-        app.DoJavaScript("""
-            executeAction(charIDToTypeID("%s"), undefined, DialogModes.NO);
-        """ % cmd)
-    else:
-        osa = "osascript -e "
-        osa += "'tell application \"%s\" " % str(app).split("\"")[1]
-        osa += "to do javascript "
-        osa += "\"executeAction(charIDToTypeID(\\\"%s\\\"), undefined, DialogModes.NO);\"'" % cmd
-        os.system(osa)

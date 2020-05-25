@@ -12,9 +12,8 @@ try:
     import code
     import contextlib
     import textwrap
-    import urllib2 as urllib
 except ImportError:
-    import urllib
+    pass
 
 
 def __import__(name, globals=None, locals=None, fromlist=None):
@@ -76,6 +75,31 @@ def __import__(name, globals=None, locals=None, fromlist=None):
             return False
 
 
+def set(module):
+    """
+    yurlungur
+        yurlungur.env
+        modules
+            PySide2
+    """
+    if platform.system() == "Windows":
+        path = os.getenv("USERPROFILE") + "\\Documents\\yurlungur\\modules"
+    if platform.system() == "Darwin":
+        path = os.getenv("HOME") + "/Documents/yurlungur/modules"
+    if platform.system() == "Linux":
+        path = "/opt/yurlungur/modules"
+
+    env_file = os.path.join(os.path.dirname(path), "yurlungur.env")
+    if not os.path.exists(path):
+        os.makedirs(path)
+        with open(env_file, "w") as f:
+            f.write("")
+
+    pip = get_pip()
+    pip.main(["install", module, "-t", path])
+    sys.path.append(path)
+
+
 def get_pip():
     """
     Returns: pip module
@@ -84,18 +108,22 @@ def get_pip():
     try:
         import pip
     except ImportError:
-        with urllib.urlopen("https://raw.github.com/pypa/pip/master/contrib/get-pip.py") as f:
-            print(f.read().decode("utf-8"))
+        url = "https://raw.github.com/pypa/pip/master/contrib/get-pip.py"
+
+        if sys.version_info.major >= 3:
+            import urllib.request as _urllib
+        else:
+            import urllib as _urllib
+
+        _urllib.urlretrieve(url, "get-pip.py")
         execfile("get-pip.py")
         os.remove("get-pip.py")
 
     if not getattr(pip, "main", False):
         from pip import _internal as pip
-
     return pip
 
 
-# patch
 pip = get_pip()
 
 
