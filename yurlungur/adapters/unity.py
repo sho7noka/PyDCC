@@ -43,10 +43,11 @@ except (ImportError, KeyError):
     def Projects():
         """
 
-        Returns: RecentProjectPath generator
+        Returns: RecentProjectPath list
 
         """
         recent_key = 'RecentlyUsedProjectPaths-'
+        projects = []
 
         # https://area.autodesk.jp/column/tutorial/maya_atoz/send-to-unity/
         if platform.platform() == "Windows":
@@ -56,7 +57,7 @@ except (ImportError, KeyError):
             for i in range(info[1]):
                 v = _winreg.EnumValue(key, i)
                 if recent_key in v[0]:
-                    yield v[1]
+                    projects.append(v[1])
 
         if platform.platform() == "Darwin":
             import plistlib
@@ -66,11 +67,13 @@ except (ImportError, KeyError):
                 info = plistlib.load(fp)
                 for k, v in info.items():
                     if recent_key in k:
-                        yield v
+                        projects.append(v)
 
         # TODO
         if platform.platform() == "Linux":
-            yield None
+            projects.append("")
+
+        return projects
 
 
     def to_manifest(path="Packages/manifest.json", version="2.0.1-preview.2"):
@@ -83,6 +86,10 @@ except (ImportError, KeyError):
         Returns:
 
         """
+        if path is None:
+            latest = Projects()[0]
+            path = os.path.join(latest, path)
+
         with open(path) as f:
             df = json.load(f, object_pairs_hook=collections.OrderedDict)
             df["dependencies"]["com.unity.scripting.python"] = version
@@ -90,7 +97,7 @@ except (ImportError, KeyError):
                 json.dump(df, w, indent=4)
 
 
-    def initialize_package(path):
+    def initialize_package(path="Assets/Editor/PythonEditor.cs"):
         """
         Args:
             path:
@@ -98,35 +105,39 @@ except (ImportError, KeyError):
         Returns:
 
         """
-        cs_text = textwrap.dedent("""
-        using UnityEngine;
-        using System.IO;
-        using System.Reflection;
-        using System.Collections;
-    
-        #if UNITY_EDITOR
-        using UnityEditor;
-        using UnityEditor.SceneManagement;
-    
-        [InitializeOnLoad]
-        public class Startup {
-    
-            static void Startup()
-            {
-                UnityEditor.PackageManager.Client.Add("com.unity.scripting.python");
-            }
-    
-            [MenuItem("Examples/Execute menu items")]
-            static void EditorPlaying()
-            {
-                var newScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-                EditorApplication.ExecuteMenuItem("GameObject/3D Object/Cube");
-                EditorSceneManager.SaveScene(newScene, "Assets/MyNewScene.unity");
-                EditorApplication.Exit(0);
-            }
-        }
-        #endif
-        """)
+        if path is None:
+            latest = Projects()[0]
+            path = os.path.join(latest, path)
 
-        with file(path) as f:
-            f.write(cs_text)
+        with open(path, "w") as f:
+            f.write(textwrap.dedent("""
+            using System;
+
+            #if UNITY_EDITOR
+            using UnityEditor;
+            using UnityEditor.Scripting.Python;
+
+            [InitializeOnLoad]
+            public class Startup 
+            {
+                static void Startup()
+                {
+                    UnityEditor.PackageManager.Client.Add("com.unity.scripting.python");
+                }
+            
+                public static void Exec()
+                {
+                    var args = Environment.GetCommandLineArgs();
+    
+                    if (args.First().EndsWith(".py"))
+                    {
+                        PythonRunner.RunFile(args.First());
+                    }
+                    else
+                    {
+                        PythonRunner.RunString(args.First());
+                    }
+                }
+            }
+            #endif
+            """))

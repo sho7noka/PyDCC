@@ -192,28 +192,8 @@ class App(object):
 
         # https://docs.unity3d.com/jp/460/Manual/CommandLineArguments.html
         elif "unity" in self.app_name:
-            with open("Assets/Editor/PythonEditor.cs", "w") as f:
-                f.write(textwrap.dedent("""
-                using System;
-
-                #if UNITY_EDITOR
-                using UnityEditor.Scripting.Python;
-                
-                public static void Exec()
-                {
-                    var args = Environment.GetCommandLineArgs();
-                    
-                    if (args.First().EndsWith(".py"))
-                    {
-                        PythonRunner.RunFile(args.First());
-                    }
-                    else
-                    {
-                        PythonRunner.RunString(args.First());
-                    }
-                }
-                #endif
-                """))
+            from yurlungur.adapters import unity
+            unity.initialize_package()
             _cmd = "%s -batchmode -executeMethod PythonScript.Exec %s" % (self.app_name, cmd)
 
         # https://learn.foundry.com/nuke/8.0/content/user_guide/configuring_nuke/command_line_operations.html
