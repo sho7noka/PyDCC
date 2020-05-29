@@ -31,7 +31,11 @@ try:
         pass
 
 
-    tools = unreal.AssetToolsHelpers.get_asset_tools()
+    def execute_console_command(script):
+        # UE4Editor.exe Project.uproject -ExecCmds=”Automation RunTests テスト名;Quit” -game
+        # unreal.PythonScriptLibrary.execute_python_command("任意のスクリプトかパス")
+        Editor = unreal.EditorLevelLibrary.get_editor_world()
+        unreal.SystemLibrary.execute_console_command(Editor, script)
 
 
     def uname(item):
@@ -47,6 +51,8 @@ try:
 
         raise Exception
 
+
+    tools = unreal.AssetToolsHelpers.get_asset_tools()
 
     sys.modules[__name__] = sys.modules["unreal"]
 except (ImportError, KeyError):

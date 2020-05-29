@@ -98,6 +98,10 @@ class YMObject(object):
         if env.Davinci() and self.resolve:
             return self.fusion.GetCurrentComp().Execute(script)
 
+        if env.UE4():
+            from yurlungur.adapters import ue4
+            return ue4.execute_console_command(script)
+
         if env.Unity():
             from yurlungur.adapters import unity
             return unity.EvalScript(script)
