@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+detect embed python interpreter.
+sys.executable or __import__
+"""
 import sys
 from yurlungur.core.env import __import__
-
-
-class YException(NotImplementedError):
-    """
-    >>> raise NotImplementedError(application)
-    """
-    pass
-
 
 application = sys.executable
 
@@ -62,6 +58,11 @@ elif __import__("substance_painter"):
 
     application = substance_painter
 
+elif __import__("rumba"):
+    import rumba
+
+    application = rumba
+
 else:
     from yurlungur.tool import standalone
 
@@ -71,14 +72,16 @@ else:
 def use(module):
     """
     set external application
-    Args:
-        module:
 
-    Returns:
+    Args:
+        module: str module
+
+    Returns: None
 
     >>> import yurlungur
     >>> yurlungur.use("hou")
     """
+    global application
     from yurlungur.core import env
 
     if module == "photoshop":
