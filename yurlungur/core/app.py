@@ -18,7 +18,7 @@ elif __import__("hou"):
 
     application = hou
 
-elif "Substance" in application:
+elif "Substance Designer" in application:
     import sd.api as sdapi
 
     application = sdapi
@@ -53,7 +53,7 @@ elif "3dsmax" in application:
 
     application = pymxs
 
-elif __import__("substance_painter"):
+elif "Substance Painter" in application:
     import substance_painter
 
     application = substance_painter
