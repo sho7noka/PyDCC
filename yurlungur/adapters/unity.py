@@ -10,15 +10,14 @@ try:
     import UnityEngine as UnityEngine
     import UnityEditor as UnityEditor
 
-    # Do not Delete
-    getattr(UnityEngine, "Debug")
-    # ['AddToOutput', 'BeginWindows', 'Close', 'CreateInstance', 'CreateWindow', 'Destroy', 'DestroyImmediate', 'DestroyObject', 'DontDestroyOnLoad', 'EndWindows', 'Equals', 'Finalize', 'FindObjectOfType', 'FindObjectsOfType', 'FindObjectsOfTypeAll', 'FindObjectsOfTypeIncludingAssets', 'FindSceneObjectsOfType', 'Focus', 'FocusWindowIfItsOpen', 'GetExtraPaneTypes', 'GetHashCode', 'GetInstanceID', 'GetType', 'GetWindow', 'GetWindowWithRect', 'HasOpenInstances', 'Instantiate', 'MemberwiseClone', 'OnEnable', 'Overloads', 'ReferenceEquals', 'RemoveNotification', 'Repaint', 'SendEvent', 'SetDirty', 'Show', 'ShowAsDropDown', 'ShowAuxWindow', 'ShowModalUtility', 'ShowNotification', 'ShowPopup', 'ShowTab', 'ShowUtility', 'ShowWindow', 'ToString', '__call__', '__class__', '__delattr__', '__delitem__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__overloads__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', 'antiAlias', 'autoRepaintOnSceneChange', 'depthBufferBits', 'focusedWindow', 'get_antiAlias', 'get_autoRepaintOnSceneChange', 'get_depthBufferBits', 'get_focusedWindow', 'get_hideFlags', 'get_maxSize', 'get_maximized', 'get_minSize', 'get_mouseOverWindow', 'get_name', 'get_position', 'get_rootVisualElement', 'get_title', 'get_titleContent', 'get_wantsMouseEnterLeaveWindow', 'get_wantsMouseMove', 'hideFlags', 'maxSize', 'maximized', 'minSize', 'mouseOverWindow', 'name', 'op_Equality', 'op_Implicit', 'op_Inequality', 'position', 'rootVisualElement', 'set_antiAlias', 'set_autoRepaintOnSceneChange', 'set_depthBufferBits', 'set_hideFlags', 'set_maxSize', 'set_maximized', 'set_minSize', 'set_name', 'set_position', 'set_title', 'set_titleContent', 'set_wantsMouseEnterLeaveWindow', 'set_wantsMouseMove', 'title', 'titleContent', 'wantsMouseEnterLeaveWindow', 'wantsMouseMove
     Console = clr.UnityEditor.Scripting.Python.PythonConsoleWindow
+    Outputs = Console.AddToOutput
+    getattr(UnityEngine, "Debug")  # NOTE: Do not Delete
 
 
     def EvalScript(script):
         """
-        NOTE: Require Roslyn
+        NOTE: Require Roslyn or Mono.CSharp
 
         Args:
             script:
@@ -31,8 +30,20 @@ try:
             clr.AddReference("Microsoft.CodeAnalysis.CSharp.Scripting")
             import Microsoft.CodeAnalysis.CSharp.Scripting as scripting
             scripting.CSharpScript.EvaluateAsync(script)
+
+            clr.AddReference("Mono.CSharp")
+            import Mono.Csharp
+            Mono.CSharp.Evaluator.Run(script)
+
         except System.IO.FileNotFoundException:
-            pass
+            """
+            https://stackoverflow.com/questions/19600315/how-to-use-a-net-method-which-modifies-in-place-in-python/19600349#19600349
+            var value = 0;
+            UnityEditor.ExpressionEvaluator.Evaluate(script, value: out value);    
+            """
+            v = 0
+            _, out = UnityEditor.ExpressionEvaluator.Evaluate(script, v)
+            print out
 
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
@@ -40,95 +51,93 @@ except (ImportError, KeyError):
     run, _, end, _ = __App("unity")._actions
 
 
-    def Projects():
-        """
+def Projects():
+    """
+    Returns: RecentProjectPath list
+    """
+    recent_key = 'RecentlyUsedProjectPaths-'
+    projects = []
 
-        Returns: RecentProjectPath list
+    # https://area.autodesk.jp/column/tutorial/maya_atoz/send-to-unity/
+    if platform.platform() == "Windows":
+        import _winreg
+        key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, r'Software\Unity Technologies\Unity Editor 5.x')
+        info = _winreg.QueryInfoKey(key)
+        for i in range(info[1]):
+            v = _winreg.EnumValue(key, i)
+            if recent_key in v[0]:
+                projects.append(v[1])
 
-        """
-        recent_key = 'RecentlyUsedProjectPaths-'
-        projects = []
+    if platform.platform() == "Darwin":
+        import plistlib
+        plist = os.getenv("HOME") + "/Library/Preferences/com.unity3d.UnityEditor5.x.plist"
 
-        # https://area.autodesk.jp/column/tutorial/maya_atoz/send-to-unity/
-        if platform.platform() == "Windows":
-            import _winreg
-            key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, r'Software\Unity Technologies\Unity Editor 5.x')
-            info = _winreg.QueryInfoKey(key)
-            for i in range(info[1]):
-                v = _winreg.EnumValue(key, i)
-                if recent_key in v[0]:
-                    projects.append(v[1])
+        with open(plist, "rb") as fp:
+            info = plistlib.load(fp)
+            for k, v in info.items():
+                if recent_key in k:
+                    projects.append(v)
 
-        if platform.platform() == "Darwin":
-            import plistlib
-            plist = os.getenv("HOME") + "/Library/Preferences/com.unity3d.UnityEditor5.x.plist"
+    # TODO
+    if platform.platform() == "Linux":
+        projects.append("")
 
-            with open(plist, "rb") as fp:
-                info = plistlib.load(fp)
-                for k, v in info.items():
-                    if recent_key in k:
-                        projects.append(v)
-
-        # TODO
-        if platform.platform() == "Linux":
-            projects.append("")
-
-        return projects
+    return projects
 
 
-    def to_manifest(path="Packages/manifest.json", version="2.0.1-preview.2"):
-        """
-        https://docs.unity3d.com/Packages/com.unity.package-manager-ui@2.0/manual/index.html
-        Args:
-            path:
-            version:
+def to_manifest(path="Packages/manifest.json", version="2.0.1-preview.2"):
+    """
+    https://docs.unity3d.com/Packages/com.unity.package-manager-ui@2.0/manual/index.html
+    Args:
+        path:
+        version:
 
-        Returns:
+    Returns:
 
-        """
-        if path is None:
-            latest = Projects()[0]
-            path = os.path.join(latest, path)
+    """
+    if path is None:
+        latest = Projects()[0]
+        path = os.path.join(latest, path)
 
-        with open(path) as f:
-            df = json.load(f, object_pairs_hook=collections.OrderedDict)
-            df["dependencies"]["com.unity.scripting.python"] = version
-            with open(path, 'w') as w:
-                json.dump(df, w, indent=4)
+    with open(path) as f:
+        df = json.load(f, object_pairs_hook=collections.OrderedDict)
+        df["dependencies"]["com.unity.scripting.python"] = version
+        with open(path, 'w') as w:
+            json.dump(df, w, indent=4)
 
 
-    def initialize_package(path="Assets/Editor/PythonEditor.cs"):
-        """
-        Args:
-            path:
+def initialize_package(path="Assets/Editor/PythonEditor.cs"):
+    """
+    Args:
+        path:
 
-        Returns:
+    Returns:
 
-        """
-        if path is None:
-            latest = Projects()[0]
-            path = os.path.join(latest, path)
+    """
+    if path is None:
+        latest = Projects()[0]
+        path = os.path.join(latest, path)
 
-        with open(path, "w") as f:
-            f.write(textwrap.dedent("""
-            using System;
-
-            #if UNITY_EDITOR
-            using UnityEditor;
-            using UnityEditor.Scripting.Python;
-
+    with open(path, "w") as f:
+        f.write(textwrap.dedent("""
+        using System;
+        using System.IO;
+        using System.Linq;
+        using System.Collections.Generic;
+        using Object = UnityEngine.Object;
+        #if UNITY_EDITOR
+        using UnityEditor;
+        using UnityEditor.Scripting.Python;
+        
+        namespace PythonExtensions
+        {
             [InitializeOnLoad]
-            public class Startup 
+            public class Startup
             {
-                static void Startup()
-                {
-                    UnityEditor.PackageManager.Client.Add("com.unity.scripting.python");
-                }
-            
                 public static void Exec()
                 {
                     var args = Environment.GetCommandLineArgs();
-    
+        
                     if (args.First().EndsWith(".py"))
                     {
                         PythonRunner.RunFile(args.First());
@@ -139,5 +148,62 @@ except (ImportError, KeyError):
                     }
                 }
             }
-            #endif
-            """))
+        
+            public class PythonExtension
+            {
+                [MenuItem("Assets/Python/Open In ScriptEditor")]
+                private static void OpenScriptEditor()
+                {
+                    // get text
+                    var selectedAssets = Selection.GetFiltered(typeof(Object), SelectionMode.Assets);
+                    var path = AssetDatabase.GetAssetPath(selectedAssets.First());
+                    var m_codeContents = System.IO.File.ReadAllText(path);
+        
+                    // serialize field
+                    EditorApplication.ExecuteMenuItem("General/Python Console");
+        
+                    var window = EditorWindow.GetWindow<PythonConsoleWindow>();
+                    var content = new SerializedObject(window);
+                    content.Update();
+                    var property = content.FindProperty("m_codeContents");
+                    property.stringValue = m_codeContents;
+                    content.ApplyModifiedProperties();
+                }
+        
+                [MenuItem("Assets/Python/Python Script")]
+                private static void CreateScript()
+                {
+                    var path = "Assets/Python";
+                    if (!AssetDatabase.IsValidFolder(path))
+                    {
+                        path = Path.GetDirectoryName(path);
+                    }
+        
+                    path += Path.DirectorySeparatorChar + "新しいファイル.py";
+                    path = AssetDatabase.GenerateUniqueAssetPath(path);
+                    path = Path.GetFullPath(path);
+        
+                    File.CreateText(path);
+                }
+            }
+        
+            public class SaveHook : UnityEditor.AssetModificationProcessor
+            {
+                private static bool is_python = false;
+        
+                private void OnWillSaveAssets(IEnumerable<string> paths)
+                {
+                    foreach (var path in paths)
+                    {
+                        if (!path.EndsWith(".py")) continue;
+                        is_python = true;
+                        break;
+                    }
+        
+                    if (is_python)
+                        AssetDatabase.Refresh();
+                }
+            }
+        }
+        #endif
+        """))
