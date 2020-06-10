@@ -160,7 +160,7 @@ def initialize_package(path="Assets/Editor/PythonEditor.cs"):
                     var m_codeContents = System.IO.File.ReadAllText(path);
         
                     // serialize field
-                    EditorApplication.ExecuteMenuItem("General/Python Console");
+                    EditorApplication.ExecuteMenuItem("Window/General/Python Console");
         
                     var window = EditorWindow.GetWindow<PythonConsoleWindow>();
                     var content = new SerializedObject(window);
@@ -179,11 +179,12 @@ def initialize_package(path="Assets/Editor/PythonEditor.cs"):
                         path = Path.GetDirectoryName(path);
                     }
         
-                    path += Path.DirectorySeparatorChar + "新しいファイル.py";
+                    path += Path.DirectorySeparatorChar + "new_script.py";
                     path = AssetDatabase.GenerateUniqueAssetPath(path);
                     path = Path.GetFullPath(path);
         
                     File.CreateText(path);
+                    AssetDatabase.Refresh();
                 }
             }
         
