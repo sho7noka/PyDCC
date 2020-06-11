@@ -4,7 +4,7 @@ from functools import partial
 
 from yurlungur.core.proxy import YNode, YFile
 from yurlungur.tool.meta import meta
-from yurlungur.core.app import YException
+from yurlungur.core.exception import YException
 
 __all__ = ["file", "cmd", "node"]
 
@@ -47,9 +47,33 @@ class _NodeType(object):
         if getattr(meta, "fusion", False):
             pass
 
+        if getattr(meta, "BVH3", False):
+            for node in ["SceneGraphNode",
+                         "AnimLayer",
+                         "AnimLayerBlend",
+                         "ConstraintLayer",
+                         "EvalSurface",
+                         "GetArray",
+                         "GetDict",
+                         "IsoCurve",
+                         "Lerp",
+                         "MakeArray",
+                         "MakeDict",
+                         "MakeSparseBuffer",
+                         "Reference",
+                         "RemoveAttribute",
+                         "SelectionSet",
+                         "SetAttribute",
+                         "ShapeAttribute",
+                         "SurfaceInfo",
+                         "TransformGeometry"]:
+                yield fnmatch.filter(
+                    meta.nodeTypeCategories()[category].nodeTypes().keys(),
+                    pattern
+                )
+
 
 class Command(object):
-    """plugin system"""
 
     @staticmethod
     def register(func):
@@ -84,6 +108,10 @@ def _select(cls, *args, **kwargs):
             node.setSelected(True, **kwargs)
 
 
+def _newDocument(cls, *args, **kwargs):
+    raise YException
+
+
 # Monkey-Patch for node
 # selection create glob list segments
 node = YNode()
@@ -100,6 +128,14 @@ Command.select = _select
 
 def _alembicImporter(cls, *args, **kwargs):
     """
+
+    Args:
+        cls:
+        *args:
+        **kwargs:
+
+    Returns:
+
     >>> f = YFile()
     >>> YFile.new_method = new_method
     >>> print f.new_method("new")
@@ -135,6 +171,16 @@ def _alembicImporter(cls, *args, **kwargs):
 
 
 def _alembicExporter(cls, *args, **kwargs):
+    """
+
+    Args:
+        cls:
+        *args:
+        **kwargs:
+
+    Returns:
+
+    """
     if getattr(meta, "AbcExport", False):
         return cls(meta.AbcExport(*args, **kwargs))
 
@@ -146,10 +192,28 @@ def _alembicExporter(cls, *args, **kwargs):
         if export(**kwargs):
             return args[0]
 
+    if getattr(meta, "BVH3", False):
+        import rumba_alembic, rumbapy
+
+        with rumbapy.Progress("Exporting animation...") as progress:
+            export = partial(rumba_alembic.export_nodes, progress=progress.update)
+            export(*args, **kwargs)
+        return
+
     raise YException
 
 
 def _fbxImporter(cls, *args, **kwargs):
+    """
+
+    Args:
+        cls:
+        *args:
+        **kwargs:
+
+    Returns:
+
+    """
     if getattr(meta, "importFBX", False):
         return meta.importFBX(*args, **kwargs)
 
@@ -171,7 +235,7 @@ def _fbxImporter(cls, *args, **kwargs):
         for k, v in kwargs:
             data.set_editor_property(k, v)
         factory = meta.FbxSceneImportFactory()
-        data.set_editor_property('factory', factory)
+        return data.set_editor_property('factory', factory)
 
         meta.tools.import_assets_automated(data)
 
@@ -182,6 +246,16 @@ def _fbxImporter(cls, *args, **kwargs):
 
 
 def _fbxExporter(cls, *args, **kwargs):
+    """
+
+    Args:
+        cls:
+        *args:
+        **kwargs:
+
+    Returns:
+
+    """
     if getattr(meta, "runtime", False):
         export = partial(
             meta.runtime.exportFile, args[0], meta.runtime.Name("noPrompt"),
@@ -193,32 +267,34 @@ def _fbxExporter(cls, *args, **kwargs):
     if getattr(meta, 'eval', False):
         return cls(meta.eval("FBXExportInAscii -v true; FBXExport -f \"{}\" -s;".format(*args)))
 
+    if getattr(meta, "BVH3", False):
+        import fbx, rumbapy
+        nodes = []  # export all the assets
+        frames = []  # export all the frames
+        ascii = False  # we want a binary FBX file
+        prefix = True  # we want the asset names prefixed by the root node name, like Maya would do
+
+        with rumbapy.Progress("Exporting animation...") as progress:
+            fbx.export_nodes(args[0], nodes, frames, ascii, prefix, progress.update)
+        return
+
     raise YException
 
 
-# def _gltfImporter(cls, *args, **kwargs):
-#     pass
-#
-#
-# def _gltfExporter(cls, *args, **kwargs):
-#     pass
-#
-#
-# def _usdImporter(cls, *args, **kwargs):
-#     pass
-#
-#
-# def _usdExporter(cls, *args, **kwargs):
-#     pass
+def _usdImporter(cls, *args, **kwargs):
+    raise YException
 
 
-# Monkey-Patch for file
+def _usdExporter(cls, *args, **kwargs):
+    raise YException
+
+
+# Monkey-Patch for file extension
 file = YFile()
 YFile.abcImporter = _alembicImporter
 YFile.abcExporter = _alembicExporter
 YFile.fbxImporter = _fbxImporter
 YFile.fbxExporter = _fbxExporter
-# YFile.gltfImporter = _gltfImporter
-# YFile.gltfExporter = _gltfExporter
-# YFile.usdImporter = _usdImporter
-# YFile.usdExporter = _usdExporter
+YFile.usdImporter = _usdImporter
+YFile.usdExporter = _usdExporter
+YFile.newDocument = _newDocument

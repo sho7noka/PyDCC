@@ -135,8 +135,8 @@ class App(object):
             "maya": _Maya(), "houdini": _Houdini(), "substance": _Substance(),
             "blender": _Blender(), "ue4": _Unreal(), "unity": _Unity(),
             "nuke": _Nuke(), "c4d": _Cinema4D(), "davinci": _Davinci(),
-            "3dsmax": _Max(), "photoshop": _Photoshop(),
-            "substance_painter": _SubstancePainter()
+            "3dsmax": _Max(), "photoshop": _Photoshop(), "substance_painter": _SubstancePainter(),
+            "rumba": _Rumba()
         }
         self.app_name = d[name]
         self.process = None
@@ -208,18 +208,15 @@ class App(object):
         elif "davinci" in self.app_name:
             pass
 
+        # https://rumba-animation.com/
+        elif "rumba" in self.app_name:
+            _cmd = "rumba my_project.rumba --cmd \"import rumba; rumba.initialize(); %s\" --no-gui" % cmd
+
         try:
             os.system(_cmd)
         except (KeyboardInterrupt, SystemExit):
             raise
-            # maya.standalone.uninitialize()
-            # hou.releaseLicense()
 
-        # __import__("yurlungur")
-        # variables = globals().copy()
-        # variables.update(locals())
-        # shell = code.InteractiveConsole(variables)
-        # shell.interact()
 
     @contextlib.contextmanager
     def connect(self, port):
@@ -240,6 +237,9 @@ class App(object):
 
     def end(self):
         self.process.terminate()
+        # maya.standalone.uninitialize()
+        # hou.releaseLicense()
+        # rumba.release()
 
     @property
     def _actions(self):
@@ -248,59 +248,6 @@ class App(object):
            run, shell, end, connect
         """
         return self.run, self.shell, self.end, self.connect
-
-
-def Qt(func=None):
-    """
-    Blender, UE4, Unity, C4D
-
-    Args:
-        func:
-
-    Returns:
-
-    """
-    try:
-        import yurlungur.Qt as Qt
-        is_Qt = any([Qt])
-    except ImportError:
-        return False
-
-    if func is None:
-        return is_Qt
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if is_Qt:
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
-def Numpy(func=None):
-    """
-    Blender, Houdini
-    Args:
-        func:
-
-    Returns:
-
-    """
-    try:
-        import numpy as nm
-        is_numpy = True
-    except ImportError:
-        return False
-
-    if func is None:
-        return nm
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if is_numpy:
-            return func(*args, **kwargs)
-
-    return wrapper
 
 
 def Maya(func=None):
@@ -334,18 +281,6 @@ def Substance(func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if "Substance" in sys.executable:
-            return func(*args, **kwargs)
-
-    return wrapper
-
-
-def SPainter(func=None):
-    if func is None:
-        return __import__("substance_painter")
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if __import__("substance_painter"):
             return func(*args, **kwargs)
 
     return wrapper
@@ -457,6 +392,30 @@ def Max(func=None):
     return wrapper
 
 
+def SPainter(func=None):
+    if func is None:
+        return __import__("substance_painter")
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if __import__("substance_painter"):
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def Rumba(func=None):
+    if func is None:
+        return __import__("rumba")
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if __import__("rumba"):
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
 def _Maya(v=2020):
     d = {
         "Linux": "/usr/Autodesk/maya%d-x64/bin/maya" % v,
@@ -512,29 +471,6 @@ def _Unity(v="2019.3.0f6"):
     return d[platform.system()]
 
 
-def _Photoshop(v=2018):
-    d = {
-        "Linux": None,
-        "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC %d/Photoshop.exe" % v,
-        "Darwin": "/Applications/Adobe Photoshop CC {0}/Adobe Photoshop CC {0}.app/Contents/MacOS/Adobe Photoshop CC {0}".format(
-            v),
-    }
-    return d[platform.system()]
-
-
-def _Max(v=2018):
-    return os.environ.get("ADSK_3DSMAX_X64_%d" % v) or "C:/Program Files/Autodesk/3ds Max %d/3dsmax.exe" % v
-
-
-def _SubstancePainter():
-    d = {
-        "Linux": "/opt/Allegorithmic/Substance_Painter/Substance Painter",
-        "Windows": "C:/Program Files/Allegorithmic/Substance Painter/Substance Painter.exe",
-        "Darwin": "/Applications/Substance\ Painter.app/Contents/MacOS/Substance\ Painter"
-    }
-    return d[platform.system()]
-
-
 def _Nuke():
     d = {
         "Linux": "",
@@ -560,3 +496,89 @@ def _Davinci():
         "Darwin": "/Applications/DaVinci Resolve Studio.app/Contents/MacOS/Resolve"
     }
     return d[platform.system()]
+
+
+def _Photoshop(v=2018):
+    d = {
+        "Linux": None,
+        "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC %d/Photoshop.exe" % v,
+        "Darwin": "/Applications/Adobe Photoshop CC {0}/Adobe Photoshop CC {0}.app/Contents/MacOS/Adobe Photoshop CC {0}".format(
+            v),
+    }
+    return d[platform.system()]
+
+
+def _Max(v=2018):
+    return os.environ.get("ADSK_3DSMAX_X64_%d" % v) or "C:/Program Files/Autodesk/3ds Max %d/3dsmax.exe" % v
+
+
+def _SubstancePainter():
+    d = {
+        "Linux": "/opt/Allegorithmic/Substance_Painter/Substance Painter",
+        "Windows": "C:/Program Files/Allegorithmic/Substance Painter/Substance Painter.exe",
+        "Darwin": "/Applications/Substance\ Painter.app/Contents/MacOS/Substance\ Painter"
+    }
+    return d[platform.system()]
+
+
+def _Rumba():
+    d = {
+        "Linux": "/opt/Allegorithmic/Substance_Painter/Substance Painter",
+        "Windows": "C:/Program Files/Allegorithmic/Substance Painter/Substance Painter.exe",
+        "Darwin": None
+    }
+    return d[platform.system()]
+
+
+def Qt(func=None):
+    """
+    Blender, UE4, Unity, C4D
+
+    Args:
+        func:
+
+    Returns:
+
+    """
+    try:
+        import yurlungur.Qt as Qt
+        is_Qt = any([Qt])
+    except ImportError:
+        return False
+
+    if func is None:
+        return is_Qt
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if is_Qt:
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+def Numpy(func=None):
+    """
+    Blender, Houdini
+
+    Args:
+        func:
+
+    Returns:
+
+    """
+    try:
+        import numpy as nm
+        is_numpy = True
+    except ImportError:
+        return False
+
+    if func is None:
+        return nm
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if is_numpy:
+            return func(*args, **kwargs)
+
+    return wrapper

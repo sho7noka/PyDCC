@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+
+"""
+
 import yurlungur
 from yurlungur.core.app import application
 from yurlungur.core import env
@@ -20,6 +24,12 @@ class MetaAttr(type):
     @staticmethod
     def rmv(self):
         pass
+
+
+# Dynamic Class
+_YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
+_YAttr = MetaAttr("YAttr", (object,), {"__doc__": MetaAttr.__doc__, "add": MetaAttr.add, "rmv": MetaAttr.rmv})
+_YVector, _YMatrix, _YColors = (object, object, object)
 
 
 class YMObject(object):
@@ -76,8 +86,8 @@ class YMObject(object):
 
     def eval(self, script):
         """
-        TODO: optionVar
-        eval script for mel, mxs, hscript, tcl, jsx, lua and c#
+        eval script for
+        mel, hscript, tcl, lua, ue4, C#, mxs, and jsx.
 
         Args:
             script:
@@ -117,20 +127,20 @@ class YMObject(object):
         return application
 
 
-# Dynamic Class
-_YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
-_YAttr = MetaAttr("YAttr", (object,), {"__doc__": MetaAttr.__doc__, "add": MetaAttr.add, "rmv": MetaAttr.rmv})
-_YVector = _YMatrix = _YColors = OM = object
+# math for native
+if env.Maya() or env.Rumba():  # and Katana
+    try:
+        import imath
+    except ImportError:
+        import Imath as imath
 
-if env.Maya():
-    import maya.api.OpenMaya as OM
+    _YVector = type('_YVector', (imath.V3f,), dict())
+    _YMatrix = type('_YMatrix', (imath.M33f,), dict())
+    _YColors = type('_YColors', (imath.Color4f,), dict())
 
-    _YVector = type('_YVector', (OM.MVector,), dict())
-    _YMatrix = type('_YMatrix', (OM.MMatrix,), dict())
-    _YColors = type('_YColors', (OM.MColor,), dict())
-
-    for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
-        application.loadPlugin(plugin, qt=1)
+    if env.Maya():
+        for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
+            application.loadPlugin(plugin, qt=1)
 
 elif env.Houdini() or env.UE4() or env.Unity():
     _YVector = type('_YVector', (
@@ -152,10 +162,12 @@ elif env.Substance():
     _YMatrix = type('_YMatrix', (application.SDValueMatrix,), dict())
     _YColors = type('_YColors', (application.SDValueColorRGBA,), dict())
 
-elif env.Max():
-    _YVector = type('_YVector', (application.Point3,), dict())
-    _YMatrix = type('_YMatrix', (application.Matrix3,), dict())
-    _YColors = type('_YColors', (application.Color,), dict())
+elif env.Blender():
+    import mathutils
+
+    _YVector = type('_YVector', (mathutils.Vector,), dict())
+    _YMatrix = type('_YMatrix', (mathutils.Matrix,), dict())
+    _YColors = type('_YColors', (mathutils.Color,), dict())
 
 elif env.Nuke():
     import _nukemath
@@ -163,9 +175,7 @@ elif env.Nuke():
     _YVector = type('_YVector', (_nukemath.Vector3,), dict())
     _YMatrix = type('_YMatrix', (_nukemath.Matrix4,), dict())
 
-elif env.Blender():
-    import mathutils
-
-    _YVector = type('_YVector', (mathutils.Vector,), dict())
-    _YMatrix = type('_YMatrix', (mathutils.Matrix,), dict())
-    _YColors = type('_YColors', (mathutils.Color,), dict())
+elif env.Max():
+    _YVector = type('_YVector', (application.Point3,), dict())
+    _YMatrix = type('_YMatrix', (application.Matrix3,), dict())
+    _YColors = type('_YColors', (application.Color,), dict())

@@ -81,6 +81,15 @@ else:
             elif env.Blender():
                 self.label = 0
 
+            elif env.Rumba():
+                meta.modify_begin()
+
+            # https://answers.unity.com/questions/1587818/how-to-undo-a-lot-of-created-objects-at-once-2.html
+            elif env.Unity():
+                meta.editor.Undo.IncrementCurrentGroup()
+                meta.editor.Undo.SetCurrentGroupName(self.label)
+                self.index = meta.editor.Undo.GetCurrentGroup()
+
             return self
 
         def __exit__(self, exc_type, exc_value, traceback):
@@ -106,6 +115,13 @@ else:
             elif env.Blender():
                 meta.ops.ed.undo_history(item=self.label)
                 meta.ops.ed.redo()
+
+            elif env.Rumba():
+                meta.modify_end()
+                # meta.undo_blend(self.label)
+
+            elif env.Unity():
+                meta.editor.Undo.CollapseUndoOperations(self.index)
 
 
 def cache(func, *args, **kwargs):

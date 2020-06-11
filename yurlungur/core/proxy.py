@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+
+"""
 import os
 import inspect
 import cmath
@@ -8,7 +11,6 @@ try:
 except ImportError:
     total_ordering = dir
 
-from yurlungur.core.app import YException
 from yurlungur.core.env import Blender, Numpy
 from yurlungur.core.deco import trace
 from yurlungur.core.wrapper import (
@@ -32,6 +34,12 @@ class YObject(_YObject):
             return "id:" + self.name
         else:
             return self.name
+
+    def __dir__(self):
+        return self.attrs
+
+    def __getattr__(self, val):
+        return self.attr(val)
 
     @property
     def name(self):
@@ -77,6 +85,9 @@ class YObject(_YObject):
 
         if getattr(meta, "Debug", False):
             return meta.engine.GameObject.Find(self.name).GetInstanceID() or 0
+
+        if getattr(meta, "BVH3", False):
+            return meta.active_document()
 
         if getattr(meta, "textureset", False):
             return
@@ -141,6 +152,7 @@ class YObject(_YObject):
         if getattr(meta, "Debug", False):
             go = meta.engine.GameObject.Find(self.name)
             if go:
+                meta.editor.Undo.RegisterFullObjectHierarchyUndo(go, "Rename %s" % args[0])
                 go.name = args[0]
             else:
                 meta.editor.AssetDatabase.RenameAsset(self.name, args[0])
@@ -149,92 +161,9 @@ class YObject(_YObject):
 
             return YNode(args[0])
 
-        if getattr(meta, "textureset", False):
-            return
-
-    @trace
-    def __getattr__(self, val):
-        if getattr(meta, "SDNode", False):
-            try:
-                prop = meta.graph.getNodeFromId(self.name).getPropertyFromId(
-                    val, meta.sd.SDPropertyCategory.Input
-                )
-            except Exception:
-                prop = meta.graph.getNodeFromId(self.name).getPropertyFromId(
-                    "$%s" % val, meta.sd.SDPropertyCategory.Input
-                )
-
-            return YAttr(
-                meta.graph.getNodeFromId(self.name).getPropertyValue(prop).get(),
-                self.name,
-                val,
-            )
-
-        if getattr(meta, "getAttr", False):
-            return YAttr(
-                meta.getAttr(self.name + "." + val), self.name, val)
-
-        if getattr(meta, "hda", False):
-            parm = meta.node(self.name).parm(val) or meta.node(self.name).parmTuple(val)
-            return YAttr(parm.eval(), self.name, val)
-
-        if getattr(meta, "runtime", False):
-            if "." in self.name:
-                node, prop = self.name.split(".")
-                return YAttr(
-                    getattr(meta.runtime.getnodebyname(node), prop),
-                    meta.runtime.getnodebyname(node).name,
-                    val,
-                )
-            else:
-                return YAttr(
-                    getattr(meta.runtime.getnodebyname(self.name), val), self.name, val
-                )
-
-        if getattr(meta, "data", False):
-            return YAttr(
-                meta.data.objects[self.name].name, self.name, val)
-
-        if getattr(meta, "C4DAtom", False):
-            return YAttr(
-                meta.doc.SearchObject(self.name)[getattr(meta, val)], self.name, val)
-
-        if getattr(meta, "knob", False):
-            return YAttr(
-                meta.toNode(self.name)[val], self.name, val)
-
-        if getattr(meta, "fusion", False):
-            return YAttr(
-                getattr(meta.fusion.GetCurrentComp().FindTool(self.name), val),
-                self.name,
-                val,
-            )
-
-        if getattr(meta, "doc", False):
-            try:
-                layer = meta.doc.layers[self.name]
-            except TypeError:
-                layer = meta.ps.Document().layers[self.name]
-
-            return YAttr(getattr(layer, val), self.name, val)
-
-        if getattr(meta, "uclass", False):
-            try:
-                return YAttr(
-                    meta.ue4.uname(self.name).get_editor_property(val), self.name, val
-                )
-            except:
-                return YAttr(
-                    meta.ue4.uname(self.name).root_component.get_editor_property(val),
-                    self.name, val,
-                )
-
-        if getattr(meta, "Debug", False):
-            obj = meta.engine.GameObject.Find(self.name)
-            for com in obj.GetComponentsInChildren(meta.engine.Component):
-                if val in dir(obj.GetComponent(com.GetType())):
-                    return YAttr(obj.GetComponent(com.GetType()), self.name, val)
-            return None
+        if getattr(meta, "BVH3", False):
+            node = meta.active_document().first_name(args[0])
+            return node.rename(args[1])
 
         if getattr(meta, "textureset", False):
             return
@@ -311,11 +240,12 @@ class YObject(_YObject):
                     return YAttr(obj.GetComponent(com.GetType()), self.name, val)
             return None
 
+        if getattr(meta, "BVH3", False):
+            node = meta.active_document().first_name(self.name)
+            return YAttr(node.plug(val), self.name, val)
+
         if getattr(meta, "textureset", False):
             return
-
-    def __dir__(self):
-        return self.attrs
 
     @property
     def attrs(self, *args, **kwargs):
@@ -371,6 +301,10 @@ class YObject(_YObject):
             for com in obj.GetComponentsInChildren(meta.engine.Component):
                 attrs.extend(dir(obj.GetComponent(com.GetType())))
             return list(set([attr for attr in attrs if not attr.startswith("__")]))
+
+        if getattr(meta, "BVH3", False):
+            node = meta.active_document().first_name(self.name)
+            return [plug.name() for plug in node.plugs()]
 
         if getattr(meta, "textureset", False):
             return
@@ -469,14 +403,30 @@ class YObject(_YObject):
                 return
 
         if getattr(meta, "Debug", False):
+            # prefab = PrefabUtility.CreatePrefab("Assets/camera_test.prefab", go)
+            # PrefabUtility.ReplacePrefab(go, prefab, ReplacePrefabOptions.ConnectToPrefab)
             go = meta.engine.GameObject.Find(self.name)
             cm = getattr(meta.engine, args[0])
 
-            if go and isinstance(cm, meta.engine.Component):
-                component = go.AddComponent(cm)
-                return YObject(component.name)
-            else:
-                return meta.editor.AssetDatabase.CreateAsset(*args)
+            if go is None:
+                if issubclass(cm, meta.engine.Behaviour):
+                    import clr
+                    T = clr.GetClrType(cm)
+                    go = meta.editor.ObjectFactory.CreateGameObject(self.name, [T])
+                    meta.editor.Undo.RegisterCreatedObjectUndo(go, "Create %s" % self.name)
+                    return YObject(go.name)
+                else:
+                    # issubclass(cm, meta.engine.Object)
+                    instance = meta.editor.ObjectFactory.CreateInstance(cm)
+                    return meta.editor.AssetDatabase.CreateAsset(instance, "Assets/%s" % self.name)
+
+            elif go and isinstance(cm, meta.engine.Component):
+                meta.editor.Undo.AddComponent(go, cm)
+                return YObject(cm.name)
+
+        if getattr(meta, "BVH3", False):
+            node = meta.Node(*args)
+            return YNode(node.name())
 
         if getattr(meta, "textureset", False):
             return
@@ -497,7 +447,6 @@ class YObject(_YObject):
             return meta.runtime.delete(meta.runtime.getnodebyname(self.name))
 
         if getattr(meta, "data", False):
-            # meta.ops.object.modifier_remove(modifier=self.name)
             return meta.context.collection.objects.unlink(meta.data.objects[self.name])
 
         if getattr(meta, "C4DAtom", False):
@@ -522,9 +471,13 @@ class YObject(_YObject):
         if getattr(meta, "Debug", False):
             go = meta.engine.GameObject.Find(self.name)
             if go:
-                return meta.engine.GameObject.DestroyImmediate(go)
+                return meta.editor.Undo.DestroyObjectImmediate(go)
             else:
                 return meta.editor.AssetDatabase.DeleteAsset(self.name)
+
+        if getattr(meta, "BVH3", False):
+            node = meta.active_document().find_first(self.name)
+            return node.delete_node(True)
 
         if getattr(meta, "textureset", False):
             return
@@ -678,7 +631,19 @@ class YObject(_YObject):
                     return meta.editor.set_actor_selection_state(uname, *args)
 
         if getattr(meta, "Debug", False):
-            return [YNode(go.name) for go in meta.editor.Selection.gameObjects]
+            if len(args) == 0 and len(kwargs) == 0:
+                return [YNode(go.name) for go in meta.editor.Selection.gameObjects]
+            else:
+                return setattr(
+                    meta.editor.Selection.activeGameObject,
+                    meta.engine.GameObject.Find(*args)
+                )
+
+        if getattr(meta, "BVH3", False):
+            if len(args) == 0 and len(kwargs) == 0:
+                return [YNode(node.name()) for node in meta.selection()]
+            else:
+                return meta.select(*args, **kwargs)
 
     @trace
     def hide(self, on=True):
@@ -714,6 +679,11 @@ class YObject(_YObject):
 
         if getattr(meta, "Debug", False):
             return meta.engine.GameObject.Find(self.name).SetActive(not on)
+
+        if getattr(meta, "BVH3", False):
+            import rumbapy
+            node = meta.active_document().find_first(self.name)
+            return rumbapy.hide([node]) if on else rumbapy.show_([node])
 
     @trace
     def parent(self, *args, **kwarg):
@@ -769,13 +739,17 @@ class YObject(_YObject):
             return YNode(meta.ue4.uname(self.name).get_parent_actor().get_name())
 
         if getattr(meta, "Debug", False):
-            transform = meta.engine.GameObject.Find(self.item).transform
+            transform = meta.engine.GameObject.Find(self.name).transform
             if len(args) > 0:
                 parent = meta.engine.GameObject.Find(args[0]).transform
-                transform.SetParent(parent, *args[1:])
+                meta.editor.Undo.SetTransformParent(transform, parent, "%s Parenting" % transform.name)
                 return YObject(parent.name)
             else:
                 return YObject(transform.parent.name) if transform.parent else None
+
+        if getattr(meta, "BVH3", False):
+            node = meta.active_document().find_first(self.name)
+            return YNode(node.parent().name())
 
     @trace
     def children(self, *args, **kwarg):
@@ -831,14 +805,15 @@ class YObject(_YObject):
             transform = meta.engine.GameObject.Find(self.item).transform
             return [YObject(transform.GetChild(i).name) for i in range(transform.childCount)]
 
+        if getattr(meta, "BVH3", False):
+            node = meta.active_document().find_first(self.name)
+            return [YNode(n.name()) for n in node.children()]
+
     @trace
     def geom(self):
         """geometry or ndarray"""
-        if Numpy():
-            import numpy
-
         if getattr(meta, "ls", False):
-            from yurlungur.core.wrapper import OM
+            import maya.api.OpenMaya as OM
             dag = OM.MGlobal.getSelectionListByName(self.name).getDagPath(0)
             return OM.MFnMesh(dag)
 
@@ -899,6 +874,10 @@ class YNode(YObject):
                     .ConnectInput(*args, **kwargs)
             )
 
+        if getattr(meta, "BVH3", False):
+            node = meta.active_document().first_name(self.name)
+            return node.plug(args[0]).connect(*args[1:], **kwargs)
+
     @trace
     def disconnect(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -931,6 +910,10 @@ class YNode(YObject):
                 meta.fusion.GetCurrentComp().FindTool(self.name), "Input", None
             )
 
+        if getattr(meta, "BVH3", False):
+            node = meta.active_document().first_name(self.name)
+            return node.plug(args[0]).disconnect(True)
+
     @trace
     def inputs(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -959,6 +942,10 @@ class YNode(YObject):
                     .GetAttrs()
             )
 
+        if getattr(meta, "BVH3", False):
+            node = meta.active_document().first_name(self.name)
+            return YNode(node.plug(args[0]).input().node().name())
+
     @trace
     def outputs(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -984,6 +971,10 @@ class YNode(YObject):
                     .GetAttrs()
             )
 
+        if getattr(meta, "BVH3", False):
+            node = meta.active_document().first_name(self.name)
+            return [YNode(out.name()) for out in node.plug(args[0]).outputs()]
+
 
 @total_ordering
 class YAttr(_YAttr):
@@ -1006,6 +997,20 @@ class YAttr(_YAttr):
     def __gt__(self, other):
         return self.value >= other.value
 
+    @trace
+    def __call__(self, *args, **kwargs):
+        """
+        helper method for set
+
+        Args:
+            *args:
+            **kwargs:
+
+        Returns:
+
+        """
+        self.set(*args, **kwargs)
+
     @property
     def value(self):
         if getattr(meta, "SDNode", False):
@@ -1013,6 +1018,9 @@ class YAttr(_YAttr):
 
         if getattr(meta, "Debug", False):
             return getattr(self._values[0], self.val)
+
+        if getattr(meta, "BVH3", False):
+            return self._values[0].value()
 
         if ":" in str(self._values[0]):
             try:
@@ -1099,27 +1107,19 @@ class YAttr(_YAttr):
                 )
 
         if getattr(meta, "Debug", False):
-            obj = meta.engine.GameObject.Find(self.obj)
-            for com in obj.GetComponentsInChildren(meta.engine.Component):
-                if self.val in dir(obj.GetComponent(com.GetType())):
-                    return setattr(obj.GetComponent(com.GetType()), self.val, args[0])
+            go = meta.engine.GameObject.Find(self.obj)
+            meta.editor.Undo.RecordObject(go, "Inspector")
+
+            for com in go.GetComponentsInChildren(meta.engine.Component):
+                if self.val in dir(go.GetComponent(com.GetType())):
+                    return setattr(go.GetComponent(com.GetType()), self.val, args[0])
+
+        if getattr(meta, "BVH3", False):
+            node = meta.active_document().first_name(self.obj)
+            return node.plug(self.val).set_value(args[0], True)
 
         if getattr(meta, "textureset", False):
             return
-
-    @trace
-    def __call__(self, *args, **kwargs):
-        """
-        helper method for set
-        
-        Args:
-            *args:
-            **kwargs:
-
-        Returns:
-
-        """
-        self.set(*args, **kwargs)
 
     @trace
     def create(self):
@@ -1143,6 +1143,9 @@ class YAttr(_YAttr):
         if getattr(meta, "data", False):
             return setattr(meta.data.objects[self.obj], "lock_" + self.val, on)
 
+        if getattr(meta, "BVH3", False):
+            return self._values[0].lock.set_value(on)
+
     @trace
     def hide(self, on=True):
         if getattr(meta, "setAttr", False):
@@ -1155,6 +1158,9 @@ class YAttr(_YAttr):
 
         if getattr(meta, "knob", False):
             return meta.toNode(self.obj)[self.val].setVisible(not on)
+
+        if getattr(meta, "BVH3", False):
+            return self._values[0].visible.set_value(not on)
 
     @property
     def vector(self):
@@ -1244,6 +1250,9 @@ class YFile(_YObject):
         if getattr(meta, "Debug", False):
             return cls(meta.editor.AssetDatabase.ImportAsset(*args, **kwargs))
 
+        if getattr(meta, "BVH3", False):
+            return meta.load_document(*args, **kwargs)
+
         if getattr(meta, "textureset", False):
             if args[0].endswith(".spp"):
                 return meta.project.open(*args)
@@ -1300,6 +1309,10 @@ class YFile(_YObject):
         if getattr(meta, "Debug", False):
             return
 
+        if getattr(meta, "BVH3", False):
+            doc = meta.active_document()
+            return doc.write(*args, **kwargs)
+
         if getattr(meta, "textureset", False):
             if args[0].endswith(".spp"):
                 return meta.project.save_as(*args, **kwargs)
@@ -1351,6 +1364,9 @@ class YFile(_YObject):
         if getattr(meta, "Debug", False):
             return meta.editor.AssetDatabase.GetAssetOrScenePath()
 
+        if getattr(meta, "BVH3", False):
+            return meta.active_document().full_document_name() + meta.active_document_filename()
+
         if getattr(meta, "textureset", False):
             return meta.project.file_path()
 
@@ -1371,7 +1387,7 @@ else:
                 self.vector = args
 
         @Numpy
-        def array(self):
+        def ndarray(self):
             import numpy as np
             return np.array(self.vector, dtype=np.float16)
 

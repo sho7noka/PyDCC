@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+
+"""
 import sys
 
 try:
@@ -13,6 +16,10 @@ except ImportError:
 
 
 class GuiLogHandler(Handler):
+    """
+    Log Handler each application
+    """
+
     def __init__(self, *args, **kwargs):
         super(GuiLogHandler, self).__init__(*args, **kwargs)
         if env.Maya():
@@ -48,6 +55,9 @@ class GuiLogHandler(Handler):
             elif env.SPainter():
                 meta.logging.error(msg)
 
+            elif env.Rumba():
+                meta.error(msg)
+
         elif record.levelno > INFO:
             if env.Maya():
                 self.MGlobal.displayWarning(msg)
@@ -72,6 +82,9 @@ class GuiLogHandler(Handler):
 
             elif env.SPainter():
                 meta.logging.warning(msg)
+
+            elif env.Rumba():
+                meta.warn(msg)
 
         else:
             if env.Maya():
@@ -98,14 +111,17 @@ class GuiLogHandler(Handler):
             elif env.SPainter():
                 meta.logging.info(msg)
 
+            elif env.Rumba():
+                meta.info(msg)
+
 
 try:
     if env.Substance():
         import sd
-        import sd.logger as slog
+        import sd.logger
 
         logger = sd.getContext().getLogger()
-        Warning = slog.LogLevel.Warning
+        Warning = sd.logger.LogLevel.Warning
 
     else:
         import yurlungur
@@ -115,10 +131,20 @@ try:
 
         handler = GuiLogHandler()
         logger.addHandler(handler)
+        # TODO: switch to stdout
         basicConfig(level=INFO, stream=sys.stdout)
+
 except Exception:
     pass
 
 
 def pprint(*msgs):
+    """
+
+    Args:
+        *msgs:
+
+    Returns:
+
+    """
     print (pformat(msgs))
