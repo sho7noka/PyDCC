@@ -3,7 +3,7 @@ import keyword
 import yurlungur as yr
 
 # yr.meta.__make_completer("UnityEngine")
-
+# import console
 
 class _Completer(object):
     """Taken from rlcompleter, with readline references stripped, and a local

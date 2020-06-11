@@ -60,6 +60,12 @@ def main_window():
         import substance_painter
         return substance_painter.ui.get_main_window()
 
+    if app_name == "rumba":
+        # from widgets.main_window import MainWindow
+        # return MainWindow
+        import rumbapy
+        return rumbapy.widget("MainWindow")
+
     return None
 
 
