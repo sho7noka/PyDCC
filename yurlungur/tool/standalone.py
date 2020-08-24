@@ -22,6 +22,7 @@ def _cli(args):
         epilog='yurlungur console',
         add_help=True,
     )
+
     parser.add_argument("--command", "-c",
                         help="program passed in as string (terminates option list)",
                         nargs=2, type=str, metavar=("cmd", "app"), )
@@ -40,6 +41,10 @@ def _cli(args):
 
     parser.add_argument("--ptvsd", "-p",
                         help="install ptvsd modules.",
+                        action="store_true", )
+
+    parser.add_argument("--shotgun", "-s",
+                        help="install shotgun modules.",
                         action="store_true", )
 
     arguments = parser.parse_args(args)
@@ -72,6 +77,9 @@ def _cli(args):
 
     if arguments.ptvsd:
         yr.env.pip.main(["install", "ptvsd"])
+
+    if arguments.shotgun:
+        yr.env.pip.main(["install", "shotgun_api3"])
 
 
 if __name__ == '__main__':
