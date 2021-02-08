@@ -43,6 +43,18 @@ elif "Nuke" in application:
 
     application = nuke
 
+elif __import__("UnityEngine"):
+    try:
+        import fusionscript
+
+        fusion = fusionscript.scriptapp('Fusion')
+    except ImportError:
+        import PeyeonScript as eyeon
+
+        fusion = eyeon.scriptapp('Fusion')
+
+    application = fusion
+
 elif "Cinema 4D" in application:
     import c4d
 
@@ -62,6 +74,11 @@ elif __import__("rumba"):
     import rumba
 
     application = rumba
+
+elif __import__("mset"):
+    import mset
+
+    application = mset
 
 else:
     from yurlungur.tool import standalone

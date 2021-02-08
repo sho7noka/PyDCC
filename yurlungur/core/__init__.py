@@ -3,11 +3,11 @@ from yurlungur.core.command import cmd, file, node
 from yurlungur.core.deco import UndoGroup, cache, threads, timer
 from yurlungur.core import env
 from yurlungur.core.logger import pprint
-from yurlungur.core.proxy import YFile, YColor, YVector, YMatrix
+from yurlungur.core.proxy import File, YColor, YVector, YMatrix
 
-if env.Maya() or env.Houdini() or env.Substance() or env.Nuke() or env.Davinci() or env.Rumba():
-    from yurlungur.core.proxy import YNode
+if env.Maya() or env.Houdini() or env.Substance() or env.Nuke() or env.Davinci() or env.Rumba() or env.UE4():
+    from yurlungur.core.proxy import Node
 else:
-    from yurlungur.core.proxy import YObject
+    from yurlungur.core.proxy import Object as Node
 
 del app, command, deco, logger, proxy
