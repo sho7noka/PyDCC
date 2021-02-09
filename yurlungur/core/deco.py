@@ -56,7 +56,7 @@ else:
         >>> import yurlungur
         >>> with yurlungur.UndoGroup("undo group"):
         >>>     for node in "hoge", "fuga", "piyo":
-        >>>         yurlungur.YNode(node).delete()
+        >>>         yurlungur.Node(node).delete()
         """
 
         def __init__(self, label):

@@ -2,7 +2,7 @@
 import fnmatch
 from functools import partial
 
-from yurlungur.core.proxy import YNode, YFile
+from yurlungur.core.proxy import Node, File
 from yurlungur.tool.meta import meta
 from yurlungur.core.exception import YException
 
@@ -17,15 +17,17 @@ class _NodeType(object):
             nodes = self.findNodes(item)
 
         for node in nodes:
-            setattr(self, str(item), YNode(node))
+            setattr(self, str(item), Node(node))
 
-        return YNode(item)
+        return Node(item)
 
     def findNodes(self, pattern):
+        """"""
         if getattr(meta, "listNodeTypes", False):
             # http://help.autodesk.com/cloudhelp/2016/JPN/Maya-Tech-Docs/CommandsPython/shadingNode.html
             categories = ["geometry", "camera", "light",
-                          "utility", "color", "shader", "texture", "rendering", "postprocess"]
+                          "utility", "color", "shader",
+                          "texture", "rendering", "postprocess"]
 
             # meta.allNodeTypes(ia=1)
             for category in categories:
@@ -86,17 +88,17 @@ class Command(object):
 
 def _ls(cls, *args, **kwargs):
     gen = meta.ls(*args, **kwargs) if hasattr(meta, "ls") else meta.pwd().allItems()
-    return tuple(YNode(obj) for obj in gen)
+    return tuple(Node(obj) for obj in gen)
 
 
 def _rm(cls, *args):
     for obj in args:
-        YNode(obj).delete()
+        Node(obj).delete()
 
 
 def _glob(cls, *args, **kwargs):
     gen = meta.ls(*args, **kwargs) if hasattr(meta, "ls") else meta.pwd().glob(*args, **kwargs)
-    return tuple(YNode(obj) for obj in gen)
+    return tuple(Node(obj) for obj in gen)
 
 
 def _select(cls, *args, **kwargs):
@@ -114,9 +116,9 @@ def _newDocument(cls, *args, **kwargs):
 
 # Monkey-Patch for node
 # selection create glob list segments
-node = YNode()
-YNode.selection = _select
-YNode.parent = None
+node = Node()
+Node.selection = _select
+Node.parent = None
 # YNode.type = _NodeType
 
 cmd = Command()
@@ -136,8 +138,8 @@ def _alembicImporter(cls, *args, **kwargs):
 
     Returns:
 
-    >>> f = YFile()
-    >>> YFile.new_method = new_method
+    >>> f = File()
+    >>> File.new_method = new_method
     >>> print f.new_method("new")
     """
     if getattr(meta, "AbcImport", False):
@@ -147,7 +149,7 @@ def _alembicImporter(cls, *args, **kwargs):
         return meta.project.create(*args, **kwargs)
 
     if getattr(meta, "hda", False):
-        geo = YNode("obj").create("geo")
+        geo = Node("obj").create("geo")
         abc = geo.create("alembic")
         abc.fileName.set(*args)
         return cls(*args)
@@ -166,6 +168,9 @@ def _alembicImporter(cls, *args, **kwargs):
         for k, v in kwargs:
             data.set_editor_property(k, v)
         meta.tools.import_assets_automated(data)
+
+    if getattr(meta, "SceneObject", False):
+        return meta.importModel(args[0])
 
     raise YException
 
@@ -225,7 +230,7 @@ def _fbxImporter(cls, *args, **kwargs):
         if importer(**kwargs):
             return args[0]
 
-    # fbx, obj, dae, ply, gltf, abc
+    # fbx, obj, dae, ply, glb, abc
     if getattr(meta, "textureset", False):
         return meta.project.create(*args, **kwargs)
 
@@ -241,6 +246,9 @@ def _fbxImporter(cls, *args, **kwargs):
 
     if getattr(meta, 'eval', False):
         return cls(meta.eval("FBXImport -file {0};".format(*args)))
+
+    if getattr(meta, "SceneObject", False):
+        return meta.importModel(args[0])
 
     raise YException
 
@@ -290,11 +298,11 @@ def _usdExporter(cls, *args, **kwargs):
 
 
 # Monkey-Patch for file extension
-file = YFile()
-YFile.abcImporter = _alembicImporter
-YFile.abcExporter = _alembicExporter
-YFile.fbxImporter = _fbxImporter
-YFile.fbxExporter = _fbxExporter
-YFile.usdImporter = _usdImporter
-YFile.usdExporter = _usdExporter
-YFile.newDocument = _newDocument
+file = File()
+File.abcImporter = _alembicImporter
+File.abcExporter = _alembicExporter
+File.fbxImporter = _fbxImporter
+File.fbxExporter = _fbxExporter
+File.usdImporter = _usdImporter
+File.usdExporter = _usdExporter
+File.newDocument = _newDocument

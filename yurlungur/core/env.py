@@ -119,6 +119,10 @@ def get_pip():
         execfile("get-pip.py")
         os.remove("get-pip.py")
 
+    # if Blender():
+    #     import bpy
+    #     subprocess.check_call([bpy.app.binary_path_python, '-m', 'pip', 'install', 'Pillow', '--user'])
+
     if not getattr(pip, "main", False):
         from pip import _internal as pip
     return pip
@@ -135,8 +139,8 @@ class App(object):
             "maya": _Maya(), "houdini": _Houdini(), "substance": _Substance(),
             "blender": _Blender(), "ue4": _Unreal(), "unity": _Unity(),
             "nuke": _Nuke(), "c4d": _Cinema4D(), "davinci": _Davinci(),
-            "3dsmax": _Max(), "photoshop": _Photoshop(), "substance_painter": _SubstancePainter(),
-            "rumba": _Rumba()
+            "3dsmax": _Max(), "photoshop": _Photoshop(), "marmoset": _Marmoset(),
+            "substance_painter": _SubstancePainter(), "rumba": _Rumba(),
         }
         self.app_name = d[name]
         self.process = None
@@ -169,7 +173,11 @@ class App(object):
 
         # https://www.sidefx.com/ja/docs/houdini/hom/commandline.html
         elif "houdini" in self.app_name:
-            _cmd = "hython -i -c \"%s\"" % cmd
+            if platform.system() == "Windows":
+                hython = self.app_name.replace("houdini.exe", "hython.exe")
+            else:
+                hython = "cd %s; source ./houdini_setup; hython" % os.path.dirname(os.path.dirname(self.app_name))
+            _cmd = "%s -i -c \"%s\"" % (hython, cmd)
 
         elif "3dsmax" in self.app_name:
             if sys.version_info.major > 3:
@@ -208,7 +216,6 @@ class App(object):
         elif "davinci" in self.app_name:
             pass
 
-        # https://rumba-animation.com/
         elif "rumba" in self.app_name:
             _cmd = "rumba my_project.rumba --cmd \"import rumba; rumba.initialize(); %s\" --no-gui" % cmd
 
@@ -216,7 +223,6 @@ class App(object):
             os.system(_cmd)
         except (KeyboardInterrupt, SystemExit):
             raise
-
 
     @contextlib.contextmanager
     def connect(self, port):
@@ -416,6 +422,18 @@ def Rumba(func=None):
     return wrapper
 
 
+def Marmoset(func=None):
+    if func is None:
+        return __import__("mset")
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if __import__("mset"):
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
 def _Maya(v=2020):
     d = {
         "Linux": "/usr/Autodesk/maya%d-x64/bin/maya" % v,
@@ -428,8 +446,9 @@ def _Maya(v=2020):
 def _Houdini(v="17.5.173"):
     d = {
         "Linux": "/opt/hfs%s/houdini" % v,
-        "Windows": "C:/Program Files/Side Effects Software/Houdini Houdini%s/bin/houdini.exe" % v,
-        "Darwin": "/Applications/Houdini/Houdini%s/Utilities/Houdini Terminal %s.app" % (v, v),
+        "Windows": "C:/Program Files/Side Effects Software/Houdini %s/bin/houdini.exe" % v,
+        "Darwin": "/Applications/Houdini/Houdini%s/Frameworks/Houdini.framework/Versions/%s/Resources/bin/houdini" % (
+        v, v[:4]),
     }
     return os.environ.get("HIP") or d[platform.system()]
 
@@ -464,7 +483,7 @@ def _Unreal(v=4.22):
 def _Unity(v="2019.3.0f6"):
     # https://docs.unity3d.com/ja/2019.1/Manual/CommandLineArguments.html
     d = {
-        "Linux": None,
+        "Linux": "",
         "Windows": "C:/Program Files/Unity/Editor/Unity.exe",
         "Darwin": "/Applications/Unity/Hub/Editor/%s/Unity.app/Contents/MacOS/Unity" % v
     }
@@ -524,8 +543,17 @@ def _SubstancePainter():
 def _Rumba():
     d = {
         "Linux": "/opt/Allegorithmic/Substance_Painter/Substance Painter",
-        "Windows": "C:/Program Files/Allegorithmic/Substance Painter/Substance Painter.exe",
+        "Windows": "C:/Program Files/Rumba/rumba.exe",
         "Darwin": None
+    }
+    return d[platform.system()]
+
+
+def _Marmoset():
+    d = {
+        "Linux": None,
+        "Windows": "C:/Program Files/Marmoset Toolbag 3/Marmoset Toolbag.exe",
+        "Darwin": "/Applications/Marmoset\ Toolbag\ 3/Marmoset\ Toolbag.app/Contents/MacOS/Marmoset\ Toolbag"
     }
     return d[platform.system()]
 
@@ -540,21 +568,22 @@ def Qt(func=None):
     Returns:
 
     """
-    try:
-        import yurlungur.Qt as Qt
-        is_Qt = any([Qt])
-    except ImportError:
-        return False
-
-    if func is None:
-        return is_Qt
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if is_Qt:
-            return func(*args, **kwargs)
-
-    return wrapper
+    return True
+    # try:
+    #     import Qt
+    #     is_Qt = any([Qt])
+    # except ImportError:
+    #     return False
+    #
+    # if func is None:
+    #     return is_Qt
+    #
+    # @functools.wraps(func)
+    # def wrapper(*args, **kwargs):
+    #     if is_Qt:
+    #         return func(*args, **kwargs)
+    #
+    # return wrapper
 
 
 def Numpy(func=None):

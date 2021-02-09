@@ -25,7 +25,7 @@ Yurlungur is pure Python and can be used **synchronously** in mixed Python2 and 
 |       | Node | Attribute | Sync |
 | ---- | --- | --- | --- |
 | Maya (2016~) | ○ | ○ | ○ |
-| Substance Designer (2018.1.2~) | ○ | ○ | ☓ |
+| Substance (2018.1.2~) | ○ | ○ | ☓ |
 | Houdini (16~) | ○ | ○ | ☓ |
 | Blender (2.80~) | ○ | ○ | ○ |
 | Unreal Engine (4.22~) | ○ | ○ | ☓ |
@@ -33,8 +33,10 @@ Yurlungur is pure Python and can be used **synchronously** in mixed Python2 and 
 | Nuke (10~) | ○ | ○ | ☓ |
 | Cinema4D (R21~) | ○ | ○ | ☓ |
 | Davinci Resolve(&Fusion) (15~) | ○ | ○ | ☓ |
+| Marmoset Toolbag 3 | ○ | ○ | ☓ |
+| RUMBA | ○ | ○ | ☓ |
 
-We also support Photoshop, Substance Painter and 3dsMax.
+We also support Photoshop and 3dsMax.
 
 ### Installation
 ```bash
@@ -72,12 +74,16 @@ YNode behaves as a base class for the object.
 ```python
 # yurlungur
 import yurlungur as yr
-yr.YNode("foo").bar.set(True)
+
+yr.Node("foo").bar.set(True)
 ``` 
 
+[sample script](./CONTRIBUTING.md).
+
 ## contribution
+
 lets see [CONTRIBUTING](./CONTRIBUTING.md).
 
-
 ## License
+
 Yurlungur is [MIT](./LICENSE.md) License.
