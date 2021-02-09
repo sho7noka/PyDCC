@@ -23,6 +23,8 @@ class GuiLogHandler(Handler):
     def __init__(self, *args, **kwargs):
         super(GuiLogHandler, self).__init__(*args, **kwargs)
         if env.Maya():
+            import maya.utils
+            maya.utils.formatGuiResult = pformat
             import maya.OpenMaya as om
             self.MGlobal = om.MGlobal
 

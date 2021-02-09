@@ -32,7 +32,7 @@ _YAttr = MetaAttr("YAttr", (object,), {"__doc__": MetaAttr.__doc__, "add": MetaA
 _YVector, _YMatrix, _YColors = (object, object, object)
 
 
-class YMObject(object):
+class MultiObject(object):
     """
     command wrapper for any application
     """
