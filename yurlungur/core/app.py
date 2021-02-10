@@ -109,3 +109,11 @@ def use(module):
         application = env.__import__(module)
 
     assert application, "application is not found."
+
+
+def initialize():
+    """name and load plugin"""
+    global node
+
+
+node = None
