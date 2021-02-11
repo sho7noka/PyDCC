@@ -22,7 +22,7 @@ class TestHoudini(unittest.TestCase):
 
     @unittest.skip("")
     def test_file(self):
-        yr.YFile.save('temp.hip')
+        yr.File.save('temp.hip')
 
 
 if __name__ == '__main__':

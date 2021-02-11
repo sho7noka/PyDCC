@@ -21,7 +21,7 @@ class TestPhotoshop(unittest.TestCase):
             print (node.name)
             node.hide()
             node.select("aaa")
-            print (yr.YFile().current)
+            print(yr.File().current)
 
     # @unittest.skipIf(not Windows(), "only windows")
     @unittest.skip("")

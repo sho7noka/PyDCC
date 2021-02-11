@@ -27,10 +27,6 @@ def _cli(args):
                         help="program passed in as string (terminates option list)",
                         nargs=2, type=str, metavar=("cmd", "app"), )
 
-    parser.add_argument("--dialog", "-d",
-                        help="Launch widget if Qt for Python is installed",
-                        action="store_true", )
-
     parser.add_argument("--environ", "-e",
                         help="set ENV settings for module",
                         nargs=1, type=str, metavar="mod", )
@@ -58,15 +54,6 @@ def _cli(args):
                 "%s is not found." % app,
                 [m for m in dir(sys.modules[__name__]) if not m.startswith("_") and m != "sys"]
             )
-
-    if arguments.dialog:
-        from yurlungur.Qt import QtWidgets
-        from yurlungur.tool import editor
-
-        app = QtWidgets.QApplication(sys.argv)
-        widget = editor.View()
-        widget.show()
-        sys.exit(app.exec_())
 
     if arguments.environ:
         from yurlungur.core.app import use

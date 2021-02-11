@@ -1,19 +1,11 @@
 # -*- coding: utf-8 -*-
 import sys
-
-try:
-    import inspect
-    import multiprocessing
-    import subprocess
-    import tempfile
-    import os
-    import functools
-    import platform
-    import code
-    import contextlib
-    import textwrap
-except ImportError:
-    pass
+import subprocess
+import tempfile
+import os
+import functools
+import platform
+import contextlib
 
 
 def __import__(name, globals=None, locals=None, fromlist=None):
@@ -441,6 +433,7 @@ def _Maya(v=2020):
         "Darwin": "/Applications/Autodesk/maya%d/Maya.app/Contents/bin/maya" % v,
     }
     return d[platform.system()]
+    # /Applications/Autodesk/maya2020/Maya.app/Contents/icons/mayaico.png
 
 
 def _Houdini(v="17.5.173"):
@@ -529,7 +522,7 @@ def _Photoshop(v=2018):
 
 def _Max(v=2018):
     return os.environ.get("ADSK_3DSMAX_X64_%d" % v) or "C:/Program Files/Autodesk/3ds Max %d/3dsmax.exe" % v
-
+    # C:\Program Files\Autodesk\3ds Max 2021\Icons\icon_main.ico
 
 def _SubstancePainter():
     d = {
@@ -542,18 +535,18 @@ def _SubstancePainter():
 
 def _Rumba():
     d = {
-        "Linux": "/opt/Allegorithmic/Substance_Painter/Substance Painter",
+        "Linux": "/opt/Rumba/rumba",
         "Windows": "C:/Program Files/Rumba/rumba.exe",
         "Darwin": None
     }
     return d[platform.system()]
 
 
-def _Marmoset():
+def _Marmoset(v=4):
     d = {
         "Linux": None,
-        "Windows": "C:/Program Files/Marmoset Toolbag 3/Marmoset Toolbag.exe",
-        "Darwin": "/Applications/Marmoset\ Toolbag\ 3/Marmoset\ Toolbag.app/Contents/MacOS/Marmoset\ Toolbag"
+        "Windows": "C:/Program Files/Marmoset Toolbag %d/Marmoset Toolbag.exe" % v,
+        "Darwin": "/Applications/Marmoset\ Toolbag\ %d/Marmoset\ Toolbag.app/Contents/MacOS/Marmoset\ Toolbag" % v
     }
     return d[platform.system()]
 
@@ -568,22 +561,21 @@ def Qt(func=None):
     Returns:
 
     """
-    return True
-    # try:
-    #     import Qt
-    #     is_Qt = any([Qt])
-    # except ImportError:
-    #     return False
-    #
-    # if func is None:
-    #     return is_Qt
-    #
-    # @functools.wraps(func)
-    # def wrapper(*args, **kwargs):
-    #     if is_Qt:
-    #         return func(*args, **kwargs)
-    #
-    # return wrapper
+    try:
+        import Qt
+        is_Qt = any([Qt])
+    except ImportError:
+        return False
+
+    if func is None:
+        return is_Qt
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if is_Qt:
+            return func(*args, **kwargs)
+
+    return wrapper
 
 
 def Numpy(func=None):

@@ -20,15 +20,15 @@ class TestMax(unittest.TestCase):
 
     @unittest.skip("only runtime")
     def test_cmds(self):
-        box = yr.YNode().create('box')
+        box = yr.Node().create('box')
         print (box.name, box.id, box.attr('Width'), box.attrs)
 
         print (box.create('Mirror', offset=0.1))
         box.width.set(10)
-        box.pos.set(yr.YVector(1, 100, 1))
+        box.pos.set(yr.Vector(1, 100, 1))
         box.select()
         box('aaa')
-        box = yr.YNode('aaa')
+        box = yr.Node('aaa')
         print (box.geom())
         box2 = box.instance()
         print (box2.geom())

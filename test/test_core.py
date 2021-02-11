@@ -5,7 +5,7 @@ import unittest
 sys.path.append('../yurlungur')
 
 from yurlungur.core import application
-from yurlungur.core.proxy import YVector
+from yurlungur.core.proxy import Vector
 
 
 class TestCore(unittest.TestSuite):
@@ -18,7 +18,7 @@ class TestCore(unittest.TestSuite):
         print(yurlungur.blender.shell("print(2)"))
 
     def test_vector(self):
-        self.assertTrue(YVector() == YVector())
+        self.assertTrue(Vector() == Vector())
 
 
 if __name__ == '__main__':

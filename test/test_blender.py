@@ -22,7 +22,7 @@ class TestBlender(unittest.TestCase):
         # yr.meta.file(new=1, f=1)
         node = yr.YObject("shape")
         node.attr("castsShadows").set(1)
-        yr.YNode("").create()
+        yr.Node("").create()
 
 
 if __name__ == '__main__':

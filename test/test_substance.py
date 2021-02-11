@@ -15,10 +15,10 @@ class TestSubstance(unittest.TestCase):
     def test_cmds(self):
         with yr.UndoGroup("undo"):
             print(dir(yr))
-            node = yr.YNode().create("uniform")
+            node = yr.Node().create("uniform")
 
             print(node, node.attr("$pixelsize"), node.attrs)
-            normal = yr.YNode().create("normal")
+            normal = yr.Node().create("normal")
             print(normal)
 
             node.connect("unique_filter_output", normal, "inputNodeOutput.connector")
@@ -28,7 +28,7 @@ class TestSubstance(unittest.TestCase):
 
     @unittest.skip("only runtime")
     def test_file(self):
-        yr.YFile.open("")
+        yr.File.open("")
 
 
 if __name__ == '__main__':

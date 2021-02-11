@@ -16,7 +16,7 @@ class TestUnreal(unittest.TestCase):
     @unittest.skip("only runtime")
     def test_read(self):
         with yr.UndoGroup("undo"):
-            node = yr.YNode("Wall2")
+            node = yr.Node("Wall2")
             print (node.name)
             print (node.id)
             print (node.hidden)
@@ -26,16 +26,16 @@ class TestUnreal(unittest.TestCase):
     @unittest.skip("only runtime")
     def test_write(self):
         with yr.UndoGroup("undo"):
-            yr.YNode("").create()
-            yr.YNode("Wall1").select()
-            yr.YNode("Wall1").instance()
+            yr.Node("").create()
+            yr.Node("Wall1").select()
+            yr.Node("Wall1").instance()
             # node.delete()
 
     @unittest.skip("only runtime")
     def test_file(self):
-        print (yr.YFile().current)
-        yr.YFile().save()
-        yr.YFile().open()
+        print(yr.File().current)
+        yr.File().save()
+        yr.File().open()
 
     @unittest.skip("only runtime")
     def test_bridge(self):
@@ -47,7 +47,7 @@ class TestUnreal(unittest.TestCase):
         yr.unity.run()
         gobj = yr.Yobject("obj").create()
         gobj.order = 1
-        f = yr.YFile().export()
+        f = yr.File().export()
         yr.unity.end()
 
         # yr.YFile.

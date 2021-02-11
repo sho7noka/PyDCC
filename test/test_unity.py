@@ -13,7 +13,7 @@ class MyTestCase(unittest.TestCase):
 
     @unittest.skip("only runtime")
     def test_something(self):
-        cube = yr.YNode("Cu")
+        cube = yr.Node("Cu")
         # import UnityEngine
         # pprint = UnityEngine.Debug.Log
         from System import Array, Console

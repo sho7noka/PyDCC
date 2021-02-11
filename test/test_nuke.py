@@ -12,7 +12,7 @@ class TestResolve(unittest.TestSuite):
 
     @unittest.skip("")
     def test_node(self):
-        yr.YNode("").create("TimeWarp")
+        yr.Node("").create("TimeWarp")
 
         if hasattr(yr.meta, "knob"):
             import nuke

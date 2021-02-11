@@ -33,7 +33,7 @@ Yurlungur is pure Python and can be used **synchronously** in mixed Python2 and 
 | Nuke (10~) | ○ | ○ | ☓ |
 | Cinema4D (R21~) | ○ | ○ | ☓ |
 | Davinci Resolve(&Fusion) (15~) | ○ | ○ | ☓ |
-| Marmoset Toolbag 3 | ○ | ○ | ☓ |
+| Marmoset Toolbag | ○ | ○ | ☓ |
 | RUMBA | ○ | ○ | ☓ |
 
 We also support Photoshop and 3dsMax.
