@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
-import inspect
-
 
 def main():
     """
     yurlungur cli entry point
     """
+    import sys, os, inspect
     sys.dont_write_bytecode = True
+
     local = os.path.dirname(os.path.dirname(inspect.currentframe().f_code.co_filename))
     if not local in sys.path:
         sys.path.append(local)

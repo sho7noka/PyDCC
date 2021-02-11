@@ -78,9 +78,6 @@ def _cli(args):
     if arguments.ptvsd:
         yr.env.pip.main(["install", "ptvsd"])
 
-    if arguments.shotgun:
-        yr.env.pip.main(["install", "shotgun_api3"])
-
 
 if __name__ == '__main__':
     _cli(sys.argv[1:])

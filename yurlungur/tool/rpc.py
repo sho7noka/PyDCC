@@ -54,7 +54,6 @@ def listen(port=18811, server="127.0.0.1", use_thread=True, quiet=True):
 
     """
     if env.Houdini() or env.Unity():
-        import hrpyc, houxmlrpc, bpy
         import rpyc.servers.classic_server
 
         # Note that quiet=False only applies when use_thread=False.

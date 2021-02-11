@@ -7,22 +7,13 @@ import traceback
 import yurlungur
 from yurlungur.core import env
 
-if env.Qt():
-    from yurlungur.Qt.QtCore import *
-    from yurlungur.Qt.QtGui import *
-    from yurlungur.Qt.QtWidgets import *
 
-
-class CallBack(object):
-    pass
-
-
-@env.Qt
 def main_window():
     """
-    >>> ptr = yurlungur.window.main_window()
+    >>> import yurlungur
+    >>> ptr = yurlungur.Qt.main_window()
     >>> view = yurlungur.Qt.QMainWindow(ptr)
-    >>> yurlungur.window.show(view)
+    >>> yurlungur.Qt.show(view)
 
     :return:
     """
@@ -48,6 +39,15 @@ def main_window():
     if app_name == "nuke":
         return QApplication.activeWindow()
 
+    if app_name == "fusion":
+        try:
+            import fusionscript
+            fusion = fusionscript.scriptapp('Fusion')
+        except ImportError:
+            import PeyeonScript as eyeon
+            fusion = eyeon.scriptapp('Fusion')
+        return fusion.GetMainWindow()
+
     if app_name == "pymxs":
         try:
             import qtmax
@@ -61,19 +61,16 @@ def main_window():
         return substance_painter.ui.get_main_window()
 
     if app_name == "rumba":
-        # from widgets.main_window import MainWindow
-        # return MainWindow
         import rumbapy
         return rumbapy.widget("MainWindow")
 
     return None
 
 
-@env.Qt
 def show(view):
     """
     >>> view = yurlungur.Qt.QWidget()
-    >>> yurlungur.window.show(view)
+    >>> yurlungur.Qt.show(view)
 
     :param view:
     :return:
