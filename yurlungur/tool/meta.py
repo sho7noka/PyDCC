@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from yurlungur.core.wrapper import YMObject
+from yurlungur.core.wrapper import MultiObject
 
-meta = YMObject()
+meta = MultiObject()
 
 
 def __make_completer(mod):
