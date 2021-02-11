@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-
-"""
-
 import yurlungur
 from yurlungur.core.app import application
 from yurlungur.core import env
@@ -53,7 +49,7 @@ class MultiObject(object):
         engine = unity.UnityEngine
 
     if env.Substance():
-        from yurlungur.adapters import substance as sd
+        from yurlungur.adapters import substance_designer as sd
         graph = sd.graph
         manager = sd.manager
 
@@ -179,3 +175,8 @@ elif env.Max():
     _YVector = type('_YVector', (application.Point3,), dict())
     _YMatrix = type('_YMatrix', (application.Matrix3,), dict())
     _YColors = type('_YColors', (application.Color,), dict())
+
+elif env.C4D():
+    _YVector = application.Vector
+    _YMatrix = application.Matrix
+    _YColors = application.Vector

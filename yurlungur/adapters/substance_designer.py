@@ -20,4 +20,4 @@ try:
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
-    run, _, end, _ = __App("substance")._actions
+    run, _, end, _ = __App("substance_designer")._actions

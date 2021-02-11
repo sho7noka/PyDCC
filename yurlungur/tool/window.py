@@ -1,4 +1,7 @@
 # coding: utf-8
+u"""
+Qt 管理Windowモジュール
+"""
 import sys
 import os
 import inspect
@@ -29,8 +32,8 @@ def main_window():
         return QtCompat.wrapInstance(ptr, QWidget)
 
     if app_name == "sd.api":
-        from yurlungur.adapters import substance
-        return substance.qt.getMainWindow()
+        from yurlungur.adapters import substance_designer
+        return substance_designer.qt.getMainWindow()
 
     if app_name == "hou":
         import hou

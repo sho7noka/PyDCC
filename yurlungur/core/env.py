@@ -128,7 +128,7 @@ class App(object):
 
     def __init__(self, name, version=None):
         d = {
-            "maya": _Maya(), "houdini": _Houdini(), "substance": _Substance(),
+            "maya": _Maya(), "houdini": _Houdini(), "substance_designer": _Substance(),
             "blender": _Blender(), "ue4": _Unreal(), "unity": _Unity(),
             "nuke": _Nuke(), "c4d": _Cinema4D(), "davinci": _Davinci(),
             "3dsmax": _Max(), "photoshop": _Photoshop(), "marmoset": _Marmoset(),
@@ -450,7 +450,7 @@ def _Substance():
     d = {
         "Linux": "/opt/Allegorithmic/Substance_Designer/Substance Designer",
         "Windows": "C:/Program Files/Allegorithmic/Substance Designer/Substance Designer.exe",
-        "Darwin": "/Applications/Substance Designer.app/Contents/MacOS/Substance Designer",
+        "Darwin": "/Applications/Substance\ Designer.app/Contents/MacOS/Substance\ Designer",
     }
     return d[platform.system()]
 
