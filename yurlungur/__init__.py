@@ -8,8 +8,6 @@ from yurlungur.tool.meta import meta
 from yurlungur.tool.standalone import *  # noQA
 from yurlungur.tool.patch import *  # noQA
 
-# info
-__all__ = []
 __version__ = "0.9.8"
 name = __name__
 version = __version__

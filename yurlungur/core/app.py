@@ -112,8 +112,11 @@ def use(module):
 
 
 def initialize():
-    """name and load plugin"""
-    global node
+    """
+    name, stubs and load plugin
+    https://docs.python.org/ja/3/reference/import.html#import-hooks
+    """
 
 
-node = None
+def finalize():
+    """"""
