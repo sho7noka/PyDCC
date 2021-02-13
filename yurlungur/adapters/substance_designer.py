@@ -1,5 +1,5 @@
 # coding: utf-8
-import sys
+import sys as __sys
 
 try:
     import sd
@@ -16,8 +16,10 @@ try:
     else:
         graph = manager.getUserPackages()[0].getChildrenResources(True)[0]
 
-    sys.modules[__name__] = sys.modules["sd"]
+    __sys.modules[__name__] = __sys.modules["sd"]
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
     run, _, end, _ = __App("substance_designer")._actions
+
+    __all__ = ["run", "end"]

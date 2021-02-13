@@ -1,10 +1,15 @@
 # coding: utf-8
-import sys
+import sys as __sys
 
 try:
     import unreal
 
-    sys.modules[__name__] = sys.modules["unreal"]
+    stubs = "PROJECT_DIR/Intermediate/PythonStub/unreal.py"
+
+    __sys.modules[__name__] = __sys.modules["unreal"]
+
+
+    # https://docs.unrealengine.com/ja/ProductionPipelines/DevelopmentSetup/Tools/ConsoleManager/index.html
 
     @unreal.uclass()
     class EditorUtil(unreal.GlobalEditorUtilityBase):
@@ -36,6 +41,13 @@ try:
         # unreal.PythonScriptLibrary.execute_python_command("任意のスクリプトかパス")
         Editor = unreal.EditorLevelLibrary.get_editor_world()
         unreal.SystemLibrary.execute_console_command(Editor, script)
+
+
+    def editor_utility():
+        """https://kinnaji.com/2021/01/08/unrealpythonsummary/#上級編　レベル【★★★★】"""
+        EUS = unreal.EditorUtilitySubsystem()
+        EUWBP = unreal.load_object(None, euw_path)  # euw_path = /Game/EUW_Test.EUW_Test
+        EUS.spawn_and_register_tab(EUWBP)
 
 
     def uname(item):

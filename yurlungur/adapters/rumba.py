@@ -1,14 +1,16 @@
 # coding: utf-8
-import sys
+import sys as __sys
 
 try:
     import rumbapy
 
-    sys.modules[__name__] = sys.modules["rumba"]
+    __sys.modules[__name__] = __sys.modules["rumba"]
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
     run, shell, end, connect = __App("rumba")._actions
+
+    __all__ = ["run", "shell", "end", "connect"]
 
 
 class Layer(object):

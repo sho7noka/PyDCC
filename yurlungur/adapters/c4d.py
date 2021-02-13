@@ -1,12 +1,14 @@
 # coding: utf-8
-import sys
+import sys as __sys
 
 try:
-    sys.modules[__name__] = sys.modules["c4d"]
+    __sys.modules[__name__] = __sys.modules["c4d"]
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
     run, shell, end, connect = __App("c4d")._actions
+
+    __all__ = ["run", "shell", "end", "connect"]
 
 
 class Project(object):

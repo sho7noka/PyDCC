@@ -1,12 +1,14 @@
 # coding: utf-8
-import sys
+import sys as __sys
 
 try:
-    sys.modules[__name__] = sys.modules["hou"]
+    __sys.modules[__name__] = __sys.modules["hou"]
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
     run, shell, end, connect = __App("houdini")._actions
+
+    __all__ = ["run", "shell", "end", "connect"]
 
 
 def enableHouModule():

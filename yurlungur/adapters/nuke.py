@@ -1,13 +1,16 @@
 # coding: utf-8
-import sys
+import sys as __sys
 
 try:
-    sys.modules[__name__] = sys.modules["nuke"]
+    __sys.modules[__name__] = __sys.modules["nuke"]
     from hiero import core
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
     run, shell, end, connect = __App("nuke")._actions
+
+    __all__ = ["run", "shell", "end", "connect"]
+
 
 class Project(object):
     def __init__(self, project):

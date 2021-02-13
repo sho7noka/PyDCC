@@ -1,10 +1,4 @@
 # coding: utf-8
-import os
-import platform
-import json
-import textwrap
-import collections
-
 try:
     import clr
     import UnityEngine as UnityEngine
@@ -12,7 +6,34 @@ try:
 
     Console = clr.UnityEditor.Scripting.Python.PythonConsoleWindow
     Outputs = Console.AddToOutput
-    getattr(UnityEngine, "Debug")  # NOTE: Do not Delete
+    getattr(UnityEngine, "Debug")  # NOTE: DO NOT DELETE
+
+
+    class Timeline(object):
+        def __init__(self, timeline):
+            self.timeline = timeline
+
+            T = clr.GetClrType(Timeline.TimelineAsset)
+            timelineAsset = UnityEngine.ScriptableObject.CreateInstance(T)
+            path = "Assets/Sample.playable"
+            UnityEditor.AssetDatabase.CreateAsset(timelineAsset, path)
+
+        @property
+        def tracks(self):
+            return Track(self.timeline)
+
+
+    class Track(object):
+        def __init__(self, track):
+            self.track = track
+
+        @property
+        def clips(self):
+            return Item(self.track)
+
+
+    class Item(object):
+        pass
 
 
     def EvalScript(script):
@@ -43,18 +64,23 @@ try:
             """
             v = 0
             _, out = UnityEditor.ExpressionEvaluator.Evaluate(script, v)
-            print out
+            print(out)
 
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
     run, _, end, _ = __App("unity")._actions
 
+    __all__ = ["run", "end"]
+
 
 def Projects():
     """
     Returns: RecentProjectPath list
     """
+    import os
+    import platform
+
     recent_key = 'RecentlyUsedProjectPaths-'
     projects = []
 
@@ -87,6 +113,7 @@ def Projects():
 
 def to_manifest(path="Packages/manifest.json", version="2.0.1-preview.2"):
     """
+    https://docs.unity3d.com/Packages/com.unity.scripting.python@2.1/manual/
     https://docs.unity3d.com/Packages/com.unity.package-manager-ui@2.0/manual/index.html
     Args:
         path:
@@ -95,6 +122,10 @@ def to_manifest(path="Packages/manifest.json", version="2.0.1-preview.2"):
     Returns:
 
     """
+    import os
+    import json
+    import collections
+
     if path is None:
         latest = Projects()[0]
         path = os.path.join(latest, path)
@@ -114,6 +145,9 @@ def initialize_package(path="Assets/Editor/PythonEditor.cs"):
     Returns:
 
     """
+    import os
+    import textwrap
+
     if path is None:
         latest = Projects()[0]
         path = os.path.join(latest, path)

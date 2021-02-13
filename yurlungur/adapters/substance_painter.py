@@ -21,11 +21,13 @@ ID = id
 --export-path	 Default export path where the outputs of the project will be exported.
 --disable-version-checking
 """
-import sys
+import sys as __sys
 
 try:
-    sys.modules[__name__] = sys.modules["substance_painter"]
+    __sys.modules[__name__] = __sys.modules["substance_painter"]
 except (ImportError, KeyError):
     from yurlungur.core.env import App as __App
 
     run, _, end, _ = __App("substance_painter")._actions
+
+    __all__ = ["run", "end"]
