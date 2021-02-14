@@ -10,9 +10,9 @@ Object(Node) クラス、Attribute クラス、File クラスの基本を知れ�
 
 それぞれのオブジェクトのスコープは以下の通りです。
 
-#. Where = Object
 #. What = Node
 #. How = Attribute
+#. Where = File
 
 
 Object&Nodeオブジェクト
@@ -23,8 +23,8 @@ UnityはComponent、BlenderはModifierでオブジェクトの振る舞いを制
 Maya や Houdini といったノードベースのアプリケーションでは、接続する同士の相互作用によって
 全体の振る舞いを制御します。
 
-前者のスタックベースのアプリケーションを使う際には YObject、
-後者のノードベースのアプリケーションを使う際には YNode　がインターフェースの
+前者のスタックベースのアプリケーションを使う際には Object、
+後者のノードベースのアプリケーションを使う際には Node　がインターフェースの
 デザインとして違和感なく使うことが出来ます。
 
 アプリケーションが持つ性質を意識して、
@@ -36,20 +36,20 @@ Node と Object をそれぞれ使いわけてプログラミングすると良�
     # 標準ではPython
     import yurlungur as yr
 
-    obj = yr.YObject("defaultResolution")
+    obj = yr.Object("defaultResolution")
 
     # or
 
-    node = yr.YNode("defaultResolution")
+    node = yr.Node("defaultResolution")
 
 
-YNode is eble to initialize that is subclass for YObject.
+Node is eble to initialize that is subclass for Object.
 You have to str object.
-Node オブジェクトのみ connection 関係のメソッドを複数持つ
+Node オブジェクトのみ connection 関係のメソッドを持つ
 
 .. code-block:: python
 
-    node = yr.YNode(obj.name)
+    node = yr.Node(obj.name)
 
 
 
@@ -59,7 +59,7 @@ Attributeオブジェクト
 これはPyMELをベースにした柔軟なAttributeクラスです。
 
 すべてオブジェクトで扱えるようにアプリケーション間の戻値をラップしています。
-これは、getter / setter のインターフェースは、アプリケーション間で異なるためです・
+これは、getter / setter のインターフェースがアプリケーション間で異なるためです
 
 attr("str") は文字列ベースのアクセスになるので、予め文字列要素で構成した
 リストを準備すれば短く書くことができるでしょう。

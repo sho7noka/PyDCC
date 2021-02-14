@@ -28,11 +28,13 @@ Chapters:
 .. toctree::
     :maxdepth: 2
 
+    howto
     api
     editor
-    howto
     tool
-
+    perform
+    native
+    todo
 
 Indices and tables
 ==================

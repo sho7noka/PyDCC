@@ -61,7 +61,7 @@ Qt parent に渡すことができます。
 .. code-block:: python
 
     widget = QWidget()
-    yr.ui.show(widget)
+    yr.Qt.show(widget)
 
 
 ゲームエンジンはQtを内蔵しません。
