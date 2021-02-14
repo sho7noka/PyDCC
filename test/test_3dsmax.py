@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 import sys
 import unittest
-
 sys.path.append('../yurlungur')
 
 import yurlungur as yr
 from yurlungur.core.env import _Max
-from yurlungur.tool import standalone
 
 
 @unittest.skipUnless(_Max(), "Max is not found")
@@ -16,7 +14,7 @@ class TestMax(unittest.TestCase):
 
     @unittest.skip("only runtime")
     def test_Max(self):
-        standalone.maxpy("import yurlungur as yr; print yr.name")
+        yr.max.shell("import yurlungur as yr; print yr.name")
 
     @unittest.skip("only runtime")
     def test_cmds(self):
@@ -25,7 +23,7 @@ class TestMax(unittest.TestCase):
 
         print (box.create('Mirror', offset=0.1))
         box.width.set(10)
-        box.pos.set(yr.Vector(1, 100, 1))
+        # box.pos.set(yurlungur.core.datatype.Vector(1, 100, 1))
         box.select()
         box('aaa')
         box = yr.Node('aaa')

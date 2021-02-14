@@ -468,7 +468,7 @@ def _Unreal(v=4.22):
     d = {
         "Linux": "",
         "Windows": "C:/Program Files/Epic Games/UE_%s/Engine/Binaries/Win64/UE4Editor.exe" % v,
-        "Darwin": "/Users/Shared/Epic Games/UE_%s/Engine/Binaries/Mac/UE4Editor.app/Contents/MacOS/UE4Editor" % v
+        "Darwin": "/Users/Shared/Epic\ Games/UE_%s/Engine/Binaries/Mac/UE4Editor.app/Contents/MacOS/UE4Editor" % v
     }
     return d[platform.system()]
 
@@ -496,7 +496,7 @@ def _Cinema4D(v=21):
     d = {
         "Linux": None,
         "Windows": "C:/Cinema/R%d/Cinema 4D.exe" % v,
-        "Darwin": "/Applications/Maxon Cinema 4D R%d/Cinema 4D.app/Contents/MacOS/Cinema 4D" % v
+        "Darwin": "/Applications/Maxon\ Cinema\ 4D\ R%d/Cinema\ 4D.app/Contents/MacOS/Cinema\ 4D" % v
     }
     return d[platform.system()]
 
@@ -505,17 +505,7 @@ def _Davinci():
     d = {
         "Linux": "",
         "Windows": "",
-        "Darwin": "/Applications/DaVinci Resolve Studio.app/Contents/MacOS/Resolve"
-    }
-    return d[platform.system()]
-
-
-def _Photoshop(v=2018):
-    d = {
-        "Linux": None,
-        "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC %d/Photoshop.exe" % v,
-        "Darwin": "/Applications/Adobe Photoshop CC {0}/Adobe Photoshop CC {0}.app/Contents/MacOS/Adobe Photoshop CC {0}".format(
-            v),
+        "Darwin": "/Applications/DaVinci\ Resolve\ Studio.app/Contents/MacOS/Resolve"
     }
     return d[platform.system()]
 
@@ -523,14 +513,6 @@ def _Photoshop(v=2018):
 def _Max(v=2018):
     return os.environ.get("ADSK_3DSMAX_X64_%d" % v) or "C:/Program Files/Autodesk/3ds Max %d/3dsmax.exe" % v
     # C:\Program Files\Autodesk\3ds Max 2021\Icons\icon_main.ico
-
-def _SubstancePainter():
-    d = {
-        "Linux": "/opt/Allegorithmic/Substance_Painter/Substance Painter",
-        "Windows": "C:/Program Files/Allegorithmic/Substance Painter/Substance Painter.exe",
-        "Darwin": "/Applications/Substance\ Painter.app/Contents/MacOS/Substance\ Painter"
-    }
-    return d[platform.system()]
 
 
 def _Rumba():
@@ -542,18 +524,37 @@ def _Rumba():
     return d[platform.system()]
 
 
+def _Photoshop(v=2018):
+    d = {
+        "Linux": None,
+        "Windows": "C:/Program Files/Adobe/Adobe Photoshop CC %d/Photoshop.exe" % v,
+        "Darwin": "/Applications/Adobe\ Photoshop\ CC\ {0}/Adobe\ Photoshop\ CC\ {0}.app/Contents/MacOS/Adobe\ Photoshop\ CC\ {0}".format(
+            v),
+    }
+    return d[platform.system()]
+
+
 def _Marmoset(v=4):
     d = {
         "Linux": None,
-        "Windows": "C:/Program Files/Marmoset Toolbag %d/Marmoset Toolbag.exe" % v,
+        "Windows": "C:/Program Files/Marmoset/Toolbag %d/toolbag.exe" % v,
         "Darwin": "/Applications/Marmoset\ Toolbag\ %d/Marmoset\ Toolbag.app/Contents/MacOS/Marmoset\ Toolbag" % v
+    }
+    return d[platform.system()]
+
+
+def _SubstancePainter():
+    d = {
+        "Linux": "/opt/Allegorithmic/Substance_Painter/Substance Painter",
+        "Windows": "C:/Program Files/Allegorithmic/Substance Painter/Substance Painter.exe",
+        "Darwin": "/Applications/Substance\ Painter.app/Contents/MacOS/Substance\ Painter"
     }
     return d[platform.system()]
 
 
 def Qt(func=None):
     """
-    Blender, UE4, Unity, C4D
+    except for C4D, Marmoset
 
     Args:
         func:

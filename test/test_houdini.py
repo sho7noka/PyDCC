@@ -13,12 +13,13 @@ class TestHoudini(unittest.TestCase):
     def test_hou(self):
         print (yr.name, yr.version)
 
+    @unittest.skip("only runtime")
     def test_node(self):
-        print (yr.YObject('obj'))
+        print(yr.Node('obj'))
 
     @unittest.skip("only runtime")
     def test_attr(self):
-        yr.YObject('obj').create('geo')
+        yr.Node('obj').create('geo')
 
     @unittest.skip("")
     def test_file(self):
