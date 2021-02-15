@@ -54,6 +54,9 @@ class GuiLogHandler(Handler):
             elif env.Max():
                 meta.print_(msg, True, False)
 
+            elif env.Marmoset():
+                meta.err(msg)
+
             elif env.SPainter():
                 meta.logging.error(msg)
 
@@ -82,6 +85,9 @@ class GuiLogHandler(Handler):
             elif env.Max():
                 meta.print_(msg, True, False)
 
+            elif env.Marmoset():
+                meta.fail(msg)
+
             elif env.SPainter():
                 meta.logging.warning(msg)
 
@@ -109,6 +115,9 @@ class GuiLogHandler(Handler):
 
             elif env.Max():
                 meta.print_(msg, False, True)
+
+            elif env.Marmoset():
+                meta.log(msg)
 
             elif env.SPainter():
                 meta.logging.info(msg)
