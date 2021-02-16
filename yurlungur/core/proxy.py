@@ -566,37 +566,35 @@ class Object(_YObject):
 
     @trace
     def select(self, *args, **kwargs):
+        from yurlungur.core.command import node
+
         if getattr(meta, "SDNode", False):
-            context = meta.sd_app.getUIMgr()
-            return (
-                Node(node.getDefinition().getLabel())
-                for node in context.getCurrentGraphSelection()
-            )
+            return node.selected
 
         if getattr(meta, "select"):
             if "shape" not in kwargs and "s" not in kwargs:
                 kwargs["s"] = True
 
             if len(args) == 0 and len(kwargs) == 0:
-                return meta.ls(sl=1)
+                return node.selected
             else:
                 return meta.select(*args, **kwargs)
 
         if getattr(meta, "hda", False):
-            return meta.node(self.name).setCurrent(*args, **kwargs)
+            if len(args) == 0 and len(kwargs) == 0:
+                return node.selected
+            else:
+                return meta.node(self.name).setCurrent(*args, **kwargs)
 
         if getattr(meta, "runtime", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return meta.runtime.select(meta.runtime.getnodebyname(self.name))
+                return node.selected
             else:
-                if meta.runtime.execute("$") == meta.runtime.execute("$selection"):
-                    return meta.runtime.execute("$ as array")
-                else:
-                    return meta.runtime.execute("$")
+                return meta.runtime.select(meta.runtime.getnodebyname(self.name))
 
         if getattr(meta, "data", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return (Object(obj.name) for obj in meta.context.selected_objects)
+                return node.selected
             else:
                 return meta.ops.object.select_pattern(pattern=self.name)
 
@@ -607,7 +605,7 @@ class Object(_YObject):
 
         if getattr(meta, "knob", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return meta.selectedNodes()
+                return node.selected
             else:
                 return meta.toNode(self.name).setSelected()
 
@@ -618,10 +616,7 @@ class Object(_YObject):
 
         if getattr(meta, "doc", False):
             if len(args) == 0 and len(kwargs) == 0:
-                try:
-                    return Node(meta.doc.ActiveLayer.name)
-                except AttributeError:
-                    return Node(meta.doc.currentLayer().name())
+                return node.selected
             else:
                 try:
                     return setattr(
@@ -634,10 +629,7 @@ class Object(_YObject):
             uname = meta.ue4.uname(self.name)
             if len(args) == 0 and len(kwargs) == 0:
                 if type(uname) == str:
-                    return (
-                        Node(asset.get_name())
-                        for asset in meta.editor.get_selected_assets()
-                    )
+                    return node.selected
                 else:
                     return (
                         Node(asset.get_name())
@@ -651,7 +643,7 @@ class Object(_YObject):
 
         if getattr(meta, "Debug", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return [Node(go.name) for go in meta.editor.Selection.gameObjects]
+                return node.selected
             else:
                 return setattr(
                     meta.editor.Selection.activeGameObject,
@@ -660,12 +652,12 @@ class Object(_YObject):
 
         if getattr(meta, "BVH3", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return (Node(node.name()) for node in meta.selection())
+                return node.selected
             else:
                 return meta.select(*args, **kwargs)
 
         if getattr(meta, "SceneObject", False):
-            return (Object(obj.name) for obj in meta.getSelectedObjects())
+            return node.selected
 
     @trace
     def hide(self, on=True):
@@ -1200,6 +1192,7 @@ class Attribute(_YAttr):
 
 class File(_YObject):
     """save, open and export"""
+    abc, fbx, usd, gltf = None, None, None, None
 
     def __init__(self, path=""):
         self.file = path if path else self.current
@@ -1220,13 +1213,13 @@ class File(_YObject):
         from yurlungur.core.command import file
 
         if args[0].endswith("abc"):
-            return cls(file.abcImporter(*args, **kwargs))
+            return cls(file.abc.Importer(*args, **kwargs))
 
         if args[0].endswith("fbx"):
-            return cls(file.fbxImporter(*args, **kwargs))
+            return cls(file.fbx.Importer(*args, **kwargs))
 
         if args[0].endswith("usd"):
-            return cls(file.usdImporter(*args, **kwargs))
+            return cls(file.usd.Importer(*args, **kwargs))
 
         if getattr(meta, "sbs", False):
             return cls(meta.manager.loadUserPackage(*args, **kwargs))
@@ -1284,13 +1277,16 @@ class File(_YObject):
         from yurlungur.core.command import file
 
         if args[0].endswith("abc"):
-            return cls(file.abcExporter(*args, **kwargs))
+            return cls(file.abc.Exporter(*args, **kwargs))
 
         if args[0].endswith("fbx"):
-            return cls(file.fbxExporter(*args, **kwargs))
+            return cls(file.fbx.Exporter(*args, **kwargs))
 
         if args[0].endswith("usd"):
-            return cls(file.usdExporter(*args, **kwargs))
+            return cls(file.usd.Exporter(*args, **kwargs))
+
+        if args[0].endswith("gltf"):
+            return cls(file.gltf.Exporter(*args, **kwargs))
 
         if getattr(meta, "sbs", False):
             return cls(meta.manager.savePackageAs(*args, **kwargs))
