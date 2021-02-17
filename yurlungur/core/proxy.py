@@ -261,7 +261,7 @@ class Object(_YObject):
             )
 
         if getattr(meta, "listAttr", False):
-            return tuple(meta.listAttr(self.name, *args, **kwargs)) or None
+            return tuple(meta.listAttr(self.name, *args, **kwargs) or [])
 
         if getattr(meta, "hda", False):
             return (p.name() for p in meta.node(self.name).parms() or [])
@@ -362,17 +362,14 @@ class Object(_YObject):
                     return partial(meta.ops.object.add, type=str(args[0]).upper())(*args[1:], **kwargs)
 
         if getattr(meta, "C4DAtom", False):
-            # object
-            if args[0][0] == "O":
+            if args[0][0] == "O":  # object
                 obj = meta.BaseObject(getattr(meta, args[0]))
                 meta.doc.InsertObject(obj)
 
-            # tag
-            if args[0][0] == "T":
+            if args[0][0] == "T":  # tag
                 obj = meta.doc.SearchObject(self.name).MakeTag(getattr(meta, args[0]))
 
-            # material
-            if args[0][0] == "M":
+            if args[0][0] == "M":  # material
                 obj = meta.BaseMaterial(getattr(meta, args[0]))
                 meta.doc.InsertMaterial(obj)
 
@@ -389,7 +386,7 @@ class Object(_YObject):
                 layer.name = self.name
                 return setattr(layer, "Kind", ps)
             except AttributeError:
-                k = kwargs.update({"name": self.name})
+                _ = kwargs.update({"name": self.name})
                 layer = meta.classForScriptingClass_("art layer").alloc().initWithProperties_(kwargs)
                 meta.ps.Document()._doc.artLayers().addObject_(layer)
                 return Object(self.name)
@@ -409,8 +406,6 @@ class Object(_YObject):
                 return
 
         if getattr(meta, "Debug", False):
-            # prefab = PrefabUtility.CreatePrefab("Assets/camera_test.prefab", go)
-            # PrefabUtility.ReplacePrefab(go, prefab, ReplacePrefabOptions.ConnectToPrefab)
             go = meta.engine.GameObject.Find(self.name)
             cm = getattr(meta.engine, args[0])
 
@@ -422,6 +417,8 @@ class Object(_YObject):
                     meta.editor.Undo.RegisterCreatedObjectUndo(go, "Create %s" % self.name)
                     return Object(go.name)
                 else:
+                    # prefab = PrefabUtility.CreatePrefab("Assets/camera_test.prefab", go)
+                    # PrefabUtility.ReplacePrefab(go, prefab, ReplacePrefabOptions.ConnectToPrefab)
                     # issubclass(cm, meta.engine.Object)
                     instance = meta.editor.ObjectFactory.CreateInstance(cm)
                     return meta.editor.AssetDatabase.CreateAsset(instance, "Assets/%s" % self.name)

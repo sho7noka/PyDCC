@@ -104,6 +104,10 @@ def _select(cls, *args, **kwargs):
         return (cls(obj.name) for obj in meta.getSelectedObjects())
 
 
+def _bake(cls, *args, **kwargs):
+    """"""
+
+
 def _alembicImporter(cls, *args, **kwargs):
     if getattr(meta, "AbcImport", False):
         return cls(meta.AbcImport(*args, **kwargs))
@@ -299,6 +303,7 @@ Node.rm = _rm
 cmd = Command()
 Command.nt = _NodeType
 Command.exec = meta.eval
+Command.bake = _bake
 
 # Monkey-Patch for file extension
 file = File()
