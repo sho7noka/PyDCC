@@ -9,7 +9,7 @@ except ImportError:
 
 from yurlungur.core.deco import trace
 from yurlungur.core.exception import YException
-from yurlungur.core.wrapper import _YObject, _YAttr
+from yurlungur.core.wrapper import _YObject
 # from yurlungur.core.datatype import Vector, Matrix, Color
 from yurlungur.tool.meta import meta
 
@@ -971,7 +971,7 @@ class Node(Object):
 
 
 @total_ordering
-class Attribute(_YAttr):
+class Attribute(_YObject):
     """parametric object"""
 
     def __init__(self, *args):
@@ -1149,9 +1149,7 @@ class Attribute(_YAttr):
     @trace
     def hide(self, on=True):
         if getattr(meta, "setAttr", False):
-            return meta.setAttr(
-                self.obj + "." + self.val, keyable=not on, channelBox=not on
-            )
+            return meta.setAttr(self.obj + "." + self.val, keyable=not on, channelBox=not on)
 
         if getattr(meta, "hda", False):
             return meta.node(self.obj).parm(self.val).hide(on)

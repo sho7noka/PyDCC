@@ -206,7 +206,7 @@ class App(object):
 
         # https://www.steakunderwater.com/wesuckless/viewtopic.php?t=2012
         elif "davinci" in self.app_name:
-            pass
+            _cmd = self.app_name + " -nogui"
 
         elif "rumba" in self.app_name:
             _cmd = "rumba my_project.rumba --cmd \"import rumba; rumba.initialize(); %s\" --no-gui" % cmd
@@ -504,10 +504,12 @@ def _Cinema4D(v=21):
 def _Davinci():
     d = {
         "Linux": "",
-        "Windows": "",
+        "Windows": "C:/Program Files/Blackmagic Design/DaVinci Resolve/Resolve.exe",
         "Darwin": "/Applications/DaVinci\ Resolve\ Studio.app/Contents/MacOS/Resolve"
     }
     return d[platform.system()]
+    # C:\Program Files\Blackmagic Design\DaVinci Resolve\fuscript.exe
+    # /Applications/DaVinci Resolve Studio.app/Contents/Libraries/Fusion/fuscript
 
 
 def _Max(v=2018):

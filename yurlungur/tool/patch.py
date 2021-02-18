@@ -25,6 +25,12 @@ if env.Blender() or env.Nuke():
     sys.exit = None
 
 # https://github.com/huntfx/vfxwindow/wiki/Quick-Start#callbacks
+if env.Max():
+    _UIWindow.addCallback = None
+
+if env.Unity():
+    _UIWindow.addCallback = None
+
 if env.Substance():
     import sd as __sd
 

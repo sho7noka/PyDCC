@@ -4,30 +4,6 @@ from yurlungur.core.app import application
 from yurlungur.core import env
 
 
-class MetaObject(type):
-    def __new__(cls, name, bases, attrs):
-        return super(MetaObject, cls).__new__(cls, name, bases, attrs)
-
-
-class MetaAttr(type):
-    def __new__(cls, name, bases, attrs):
-        return super(MetaAttr, cls).__new__(cls, name, bases, attrs)
-
-    @staticmethod
-    def add(self):
-        pass
-
-    @staticmethod
-    def rmv(self):
-        pass
-
-
-# Dynamic Class
-_YObject = MetaObject("YObject", (object,), {"__doc__": MetaObject.__doc__})
-_YAttr = MetaAttr("YAttr", (object,), {"__doc__": MetaAttr.__doc__, "add": MetaAttr.add, "rmv": MetaAttr.rmv})
-_YVector, _YMatrix, _YColors = (object, object, object)
-
-
 class MultiObject(object):
     """
     command wrapper for any application
@@ -83,7 +59,7 @@ class MultiObject(object):
     def eval(self, script):
         """
         eval script for
-        mel, hscript, tcl, lua, ue4, C#, mxs, and jsx.
+        mel, hscript, tcl, lua, ue command, unity C#, mxs, and jsx.
 
         Args:
             script:
@@ -123,60 +99,21 @@ class MultiObject(object):
         return application
 
 
-# math for native
-if env.Maya() or env.Rumba():  # and Katana
-    try:
-        import imath
-    except ImportError:
-        import Imath as imath
+class MetaObject(type):
+    """"""
 
-    _YVector = type('_YVector', (imath.V3f,), dict())
-    _YMatrix = type('_YMatrix', (imath.M33f,), dict())
-    _YColors = type('_YColors', (imath.Color4f,), dict())
+    def __new__(cls, name, bases, attrs):
+        return super(MetaObject, cls).__new__(cls, name, bases, attrs)
 
-    if env.Maya():
-        for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
-            application.loadPlugin(plugin, qt=1)
-
-elif env.Houdini() or env.UE4() or env.Unity():
-    _YVector = type('_YVector', (
-        application.Vector if hasattr(application, "Vector") else application.Vector3,
-    ), dict())
-
-    if env.Unity():
+    @staticmethod
+    def add(self):
         pass
-        # _YMatrix = type('_YMatrix', (application.Matrix4x4), dict())
-    else:
-        _YMatrix = type('_YMatrix', (
-            application.Matrix if hasattr(application, "Matrix") else application.Matrix4,
-        ), dict())
 
-    _YColors = type('_YColors', (application.Color,), dict())
+    @staticmethod
+    def rmv(self):
+        pass
 
-elif env.Substance():
-    _YVector = type('_YVector', (application.SDValueVector,), dict())
-    _YMatrix = type('_YMatrix', (application.SDValueMatrix,), dict())
-    _YColors = type('_YColors', (application.SDValueColorRGBA,), dict())
 
-elif env.Blender():
-    import mathutils
-
-    _YVector = type('_YVector', (mathutils.Vector,), dict())
-    _YMatrix = type('_YMatrix', (mathutils.Matrix,), dict())
-    _YColors = type('_YColors', (mathutils.Color,), dict())
-
-elif env.Nuke():
-    import _nukemath
-
-    _YVector = type('_YVector', (_nukemath.Vector3,), dict())
-    _YMatrix = type('_YMatrix', (_nukemath.Matrix4,), dict())
-
-elif env.Max():
-    _YVector = type('_YVector', (application.Point3,), dict())
-    _YMatrix = type('_YMatrix', (application.Matrix3,), dict())
-    _YColors = type('_YColors', (application.Color,), dict())
-
-elif env.C4D():
-    _YVector = application.Vector
-    _YMatrix = application.Matrix
-    _YColors = application.Vector
+# Dynamic Class
+_YObject = MetaObject("YObject", (object,),
+                      {"__doc__": MetaObject.__doc__, "add": MetaObject.add, "rmv": MetaObject.rmv})

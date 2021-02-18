@@ -1,6 +1,65 @@
 # -*- coding: utf-8 -*-
-from yurlungur.core.env import Blender, Numpy
-from yurlungur.core.wrapper import _YVector, _YMatrix, _YColors
+from yurlungur.core import env
+
+_YVector, _YMatrix, _YColors = (object, object, object)
+
+# math for native
+if env.Maya() or env.Rumba():  # and Katana
+    try:
+        import imath
+    except ImportError:
+        import Imath as imath
+
+    _YVector = type('_YVector', (imath.V3f,), dict())
+    _YMatrix = type('_YMatrix', (imath.M33f,), dict())
+    _YColors = type('_YColors', (imath.Color4f,), dict())
+
+    if env.Maya():
+        for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
+            application.loadPlugin(plugin, qt=1)
+
+elif env.Houdini() or env.UE4() or env.Unity():
+    _YVector = type('_YVector', (
+        application.Vector if hasattr(application, "Vector") else application.Vector3,
+    ), dict())
+
+    if env.Unity():
+        pass
+        # _YMatrix = type('_YMatrix', (application.Matrix4x4), dict())
+    else:
+        _YMatrix = type('_YMatrix', (
+            application.Matrix if hasattr(application, "Matrix") else application.Matrix4,
+        ), dict())
+
+    _YColors = type('_YColors', (application.Color,), dict())
+
+elif env.Substance():
+    _YVector = type('_YVector', (application.SDValueVector,), dict())
+    _YMatrix = type('_YMatrix', (application.SDValueMatrix,), dict())
+    _YColors = type('_YColors', (application.SDValueColorRGBA,), dict())
+
+elif env.Blender():
+    import mathutils
+
+    _YVector = type('_YVector', (mathutils.Vector,), dict())
+    _YMatrix = type('_YMatrix', (mathutils.Matrix,), dict())
+    _YColors = type('_YColors', (mathutils.Color,), dict())
+
+elif env.Nuke():
+    import _nukemath
+
+    _YVector = type('_YVector', (_nukemath.Vector3,), dict())
+    _YMatrix = type('_YMatrix', (_nukemath.Matrix4,), dict())
+
+elif env.Max():
+    _YVector = type('_YVector', (application.Point3,), dict())
+    _YMatrix = type('_YMatrix', (application.Matrix3,), dict())
+    _YColors = type('_YColors', (application.Color,), dict())
+
+elif env.C4D():
+    _YVector = application.Vector
+    _YMatrix = application.Matrix
+    _YColors = application.Vector
 
 
 class Vector(_YVector):
@@ -8,7 +67,7 @@ class Vector(_YVector):
     __hash__ = None
 
     def __init__(self, *args, **kwargs):
-        if Blender():
+        if env.Blender():
             super(Vector, self).__init__()
             self.vector = [self.x, self.y, self.z]
         else:
@@ -660,7 +719,7 @@ class Vector(_YVector):
                     axis += AXIS_NEG
         return axis if asId else _AXIS_VECTOR_DICT.get(axis)
 
-    @Numpy
+    @env.Numpy
     def ndarray(self):
         import numpy as np
         return np.array(self.vector, dtype=np.float16)

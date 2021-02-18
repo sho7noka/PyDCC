@@ -10,6 +10,13 @@ __all__ = [
     "file", "cmd", "node"
 ]
 
+u"""
+node ベースのアプリだとコマンド化されずに
+まとまったAPIで読み込みを行う必要があるので
+ここでコマンドにしておく
+
+runtimecommand 化
+"""
 
 class Command(object):
     """
@@ -33,7 +40,7 @@ def _ls(cls, *args, **kwargs):
         gen = meta.runtime.objects
     if hasattr(meta, "ls"):
         gen = meta.ls(*args, **kwargs)
-    return tuple(Node(obj) for obj in gen)
+    return (cls(obj) for obj in gen)
 
 
 def _rm(cls, *args):
