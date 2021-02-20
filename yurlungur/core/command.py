@@ -309,7 +309,7 @@ Node.rm = _rm
 # Monkey-Patch for command
 cmd = Command()
 Command.nt = _NodeType
-Command.exec = meta.eval
+Command.eval = meta.eval
 Command.bake = _bake
 
 # Monkey-Patch for file extension

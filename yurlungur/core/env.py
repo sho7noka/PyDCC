@@ -494,7 +494,7 @@ def _Nuke():
 
 def _Cinema4D(v=21):
     d = {
-        "Linux": None,
+        "Linux": "",
         "Windows": "C:/Cinema/R%d/Cinema 4D.exe" % v,
         "Darwin": "/Applications/Maxon\ Cinema\ 4D\ R%d/Cinema\ 4D.app/Contents/MacOS/Cinema\ 4D" % v
     }

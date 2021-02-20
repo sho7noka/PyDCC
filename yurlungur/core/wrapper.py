@@ -116,4 +116,5 @@ class MetaObject(type):
 
 # Dynamic Class
 _YObject = MetaObject("YObject", (object,),
-                      {"__doc__": MetaObject.__doc__, "add": MetaObject.add, "rmv": MetaObject.rmv})
+                      {"__doc__": MetaObject.__doc__,
+                       "add": MetaObject.add, "rmv": MetaObject.rmv})

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from math import sqrt
 from yurlungur.core import env
 
 _YVector, _YMatrix, _YColors = (object, object, object)
@@ -15,8 +16,10 @@ if env.Maya() or env.Rumba():  # and Katana
     _YColors = type('_YColors', (imath.Color4f,), dict())
 
     if env.Maya():
+        import maya.cmds
+
         for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
-            application.loadPlugin(plugin, qt=1)
+            maya.cmds.loadPlugin(plugin, qt=1)
 
 elif env.Houdini() or env.UE4() or env.Unity():
     _YVector = type('_YVector', (
@@ -34,9 +37,11 @@ elif env.Houdini() or env.UE4() or env.Unity():
     _YColors = type('_YColors', (application.Color,), dict())
 
 elif env.Substance():
-    _YVector = type('_YVector', (application.SDValueVector,), dict())
-    _YMatrix = type('_YMatrix', (application.SDValueMatrix,), dict())
-    _YColors = type('_YColors', (application.SDValueColorRGBA,), dict())
+    import sd
+
+    _YVector = type('_YVector', (sd.SDValueVector,), dict())
+    _YMatrix = type('_YMatrix', (sd.SDValueMatrix,), dict())
+    _YColors = type('_YColors', (sd.SDValueColorRGBA,), dict())
 
 elif env.Blender():
     import mathutils
@@ -52,14 +57,18 @@ elif env.Nuke():
     _YMatrix = type('_YMatrix', (_nukemath.Matrix4,), dict())
 
 elif env.Max():
-    _YVector = type('_YVector', (application.Point3,), dict())
-    _YMatrix = type('_YMatrix', (application.Matrix3,), dict())
-    _YColors = type('_YColors', (application.Color,), dict())
+    from pymxs import runtime as rt
+
+    _YVector = type('_YVector', (rt.Point3,), dict())
+    _YMatrix = type('_YMatrix', (rt.Matrix3,), dict())
+    _YColors = type('_YColors', (rt.Color,), dict())
 
 elif env.C4D():
-    _YVector = application.Vector
-    _YMatrix = application.Matrix
-    _YColors = application.Vector
+    import c4d
+
+    _YVector = c4d.Vector
+    _YMatrix = c4d.Matrix
+    _YColors = c4d.Vector
 
 
 class Vector(_YVector):
