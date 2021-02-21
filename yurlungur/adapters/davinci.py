@@ -35,7 +35,7 @@ class Projects(object):
         from yurlungur.tool.meta import meta
         self.manager = meta.resolve.GetProjectManager()
         self.project = self.manager.GetCurrentProject()
-        self.projects = self.manager.GetProjectsInCurrentFolder()
+        self.projects = self.manager.GetProjectListInCurrentFolder()
 
     def __repr__(self):
         return self.project.GetName()
