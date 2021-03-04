@@ -207,6 +207,7 @@ class App(object):
         # https://www.steakunderwater.com/wesuckless/viewtopic.php?t=2012
         elif "davinci" in self.app_name:
             _cmd = self.app_name + " -nogui"
+            # C:\Program Files\Blackmagic Design\DaVinci Resolve\fuscript.exe <script> [args] -l python3
 
         elif "rumba" in self.app_name:
             _cmd = "rumba my_project.rumba --cmd \"import rumba; rumba.initialize(); %s\" --no-gui" % cmd
@@ -426,7 +427,7 @@ def Marmoset(func=None):
     return wrapper
 
 
-def _Maya(v=2020):
+def _Maya(v=2018):
     d = {
         "Linux": "/usr/Autodesk/maya%d-x64/bin/maya" % v,
         "Windows": "C:/Program Files/Autodesk/Maya%d/bin/maya.exe" % v,
@@ -483,11 +484,11 @@ def _Unity(v="2019.3.0f6"):
     return d[platform.system()]
 
 
-def _Nuke():
+def _Nuke(v="12.2v5"):
     d = {
-        "Linux": "",
-        "Windows": "",
-        "Darwin": ""
+        "Linux": "/usr/local/Nuke%s/Nuke%s" % (v, v[:4]),
+        "Windows": "C:/Program Files/Nuke%s/Nuke%s.exe" % (v, v[:4]),
+        "Darwin": "/Applications/Nuke%s/Nuke%s.app/Contents/MacOS/Nuke%s" % (v, v, v[:4])
     }
     return d[platform.system()]
 
@@ -504,17 +505,14 @@ def _Cinema4D(v=21):
 def _Davinci():
     d = {
         "Linux": "",
-        "Windows": "C:/Program Files/Blackmagic Design/DaVinci Resolve/Resolve.exe",
+        "Windows": "C:/Program Files/Blackmagic Design/DaVinci Resolve Studio/Resolve.exe",
         "Darwin": "/Applications/DaVinci\ Resolve\ Studio.app/Contents/MacOS/Resolve"
     }
     return d[platform.system()]
-    # C:\Program Files\Blackmagic Design\DaVinci Resolve\fuscript.exe
-    # /Applications/DaVinci Resolve Studio.app/Contents/Libraries/Fusion/fuscript
 
 
 def _Max(v=2018):
     return os.environ.get("ADSK_3DSMAX_X64_%d" % v) or "C:/Program Files/Autodesk/3ds Max %d/3dsmax.exe" % v
-    # C:\Program Files\Autodesk\3ds Max 2021\Icons\icon_main.ico
 
 
 def _Rumba():

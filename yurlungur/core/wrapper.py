@@ -36,7 +36,9 @@ class MultiObject(object):
         resolve = env.__import__("DaVinciResolveScript").scriptapp("Resolve")
         if resolve:
             fusion = resolve.Fusion()
-            manager = resolve.GetProjectManager()
+            is_fusion = not fusion.CurrentComp is None
+            from yurlungur.adapters import davinci as _davinci
+            davinci = _davinch
 
     def __getattr__(self, item):
         try:
@@ -78,7 +80,13 @@ class MultiObject(object):
             return application.tcl(script)
 
         if env.Davinci() and self.resolve:
-            return self.fusion.GetCurrentComp().Execute(script)
+            """
+            comp.Execute("print('Hello from Lua!')")
+            comp.Execute("!Py: print('Hello from default Python!')") 
+            comp.Execute("!Py2: print 'Hello from Python 2!'")
+            comp.Execute("!Py3: print ('Hello from Python 3!')")
+            """
+            return self.fusion.Execute(script)
 
         if env.UE4():
             from yurlungur.adapters import ue4

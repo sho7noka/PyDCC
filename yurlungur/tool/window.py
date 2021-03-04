@@ -45,10 +45,10 @@ def main_window():
     if app_name == "fusion":
         try:
             import fusionscript
-            fusion = fusionscript.scriptapp('Fusion')
         except ImportError:
-            import PeyeonScript as eyeon
-            fusion = eyeon.scriptapp('Fusion')
+            import PeyeonScript as fusionscript
+
+        fusion = fusionscript.scriptapp('Fusion')
         return fusion.GetMainWindow()
 
     if app_name == "pymxs":
