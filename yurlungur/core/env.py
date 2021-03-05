@@ -131,8 +131,8 @@ class App(object):
             "maya": _Maya(), "houdini": _Houdini(), "substance_designer": _Substance(),
             "blender": _Blender(), "ue4": _Unreal(), "unity": _Unity(),
             "nuke": _Nuke(), "c4d": _Cinema4D(), "davinci": _Davinci(),
-            "3dsmax": _Max(), "photoshop": _Photoshop(), "marmoset": _Marmoset(),
-            "substance_painter": _SubstancePainter(), "rumba": _Rumba(),
+            "rumba": _Rumba(), "3dsmax": _Max(), "photoshop": _Photoshop(),
+            "marmoset": _Marmoset(), "substance_painter": _SubstancePainter(),
             "renderdoc": _RenderDoc()
         }
         self.app_name = d[name]
@@ -206,12 +206,12 @@ class App(object):
             self.app_name = self.app_name.replace("Cinema 4D", "c4dpy")
 
         # https://www.steakunderwater.com/wesuckless/viewtopic.php?t=2012
+        # C:\Program Files\Blackmagic Design\DaVinci Resolve\fuscript.exe <script> [args] -l python3
         elif "davinci" in self.app_name:
             _cmd = self.app_name + " -nogui"
-            # C:\Program Files\Blackmagic Design\DaVinci Resolve\fuscript.exe <script> [args] -l python3
 
         elif "rumba" in self.app_name:
-            _cmd = "rumba my_project.rumba --cmd \"import rumba; rumba.initialize(); %s\" --no-gui" % cmd
+            _cmd = "rumba --cmd \"import rumba; rumba.initialize(); %s\" --no-gui" % cmd
 
         elif "renderdoc" in self.app_name:
             _cmd = self.app_name
@@ -579,7 +579,7 @@ def _SubstancePainter():
 
 def Qt(func=None):
     """
-    except for C4D, Marmoset
+    except for Cinema4D, Marmoset
 
     Args:
         func:
@@ -606,7 +606,7 @@ def Qt(func=None):
 
 def Numpy(func=None):
     """
-    Blender, Houdini
+    Blender, Houdini, Rumba
 
     Args:
         func:

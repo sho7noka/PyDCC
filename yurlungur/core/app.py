@@ -43,37 +43,29 @@ elif "Nuke" in application:
 
     application = nuke
 
-elif __import__("UnityEngine"):
-    try:
-        import fusionscript
-
-        fusion = fusionscript.scriptapp('Fusion')
-    except ImportError:
-        import PeyeonScript as eyeon
-
-        fusion = eyeon.scriptapp('Fusion')
-
-    application = fusion
+# Davinci & Fusion
 
 elif "Cinema 4D" in application:
     import c4d
 
     application = c4d
 
+# Photoshop
+
 elif "3dsmax" in application:
     import pymxs
 
     application = pymxs
 
-elif "Substance Painter" in application:
-    import substance_painter
-
-    application = substance_painter
-
 elif __import__("rumba"):
     import rumba
 
     application = rumba
+
+elif "Substance Painter" in application:
+    import substance_painter
+
+    application = substance_painter
 
 elif __import__("mset"):
     import mset
