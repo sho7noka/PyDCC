@@ -80,6 +80,11 @@ elif __import__("mset"):
 
     application = mset
 
+elif __import__("renderdoc"):
+    import renderdoc
+
+    application = renderdoc
+
 else:
     from yurlungur.tool import standalone
 

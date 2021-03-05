@@ -133,6 +133,7 @@ class App(object):
             "nuke": _Nuke(), "c4d": _Cinema4D(), "davinci": _Davinci(),
             "3dsmax": _Max(), "photoshop": _Photoshop(), "marmoset": _Marmoset(),
             "substance_painter": _SubstancePainter(), "rumba": _Rumba(),
+            "renderdoc": _RenderDoc()
         }
         self.app_name = d[name]
         self.process = None
@@ -211,6 +212,9 @@ class App(object):
 
         elif "rumba" in self.app_name:
             _cmd = "rumba my_project.rumba --cmd \"import rumba; rumba.initialize(); %s\" --no-gui" % cmd
+
+        elif "renderdoc" in self.app_name:
+            _cmd = self.app_name
 
         try:
             os.system(_cmd)
@@ -415,6 +419,18 @@ def Rumba(func=None):
     return wrapper
 
 
+def RenderDoc(func=None):
+    if func is None:
+        return __import__("renderdoc")
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if __import__("renderdoc"):
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
 def Marmoset(func=None):
     if func is None:
         return __import__("mset")
@@ -504,7 +520,7 @@ def _Cinema4D(v=21):
 
 def _Davinci():
     d = {
-        "Linux": "",
+        "Linux": "/opt/resolve/bin/resolve",
         "Windows": "C:/Program Files/Blackmagic Design/DaVinci Resolve Studio/Resolve.exe",
         "Darwin": "/Applications/DaVinci\ Resolve\ Studio.app/Contents/MacOS/Resolve"
     }
@@ -515,9 +531,9 @@ def _Max(v=2018):
     return os.environ.get("ADSK_3DSMAX_X64_%d" % v) or "C:/Program Files/Autodesk/3ds Max %d/3dsmax.exe" % v
 
 
-def _Rumba():
+def _Rumba(v="1.0.1"):
     d = {
-        "Linux": "/opt/Rumba/rumba",
+        "Linux": "/opt/rumba_%s_linux64/rumba" % v,
         "Windows": "C:/Program Files/Rumba/rumba.exe",
         "Darwin": None
     }
@@ -539,6 +555,15 @@ def _Marmoset(v=4):
         "Linux": None,
         "Windows": "C:/Program Files/Marmoset/Toolbag %d/toolbag.exe" % v,
         "Darwin": "/Applications/Marmoset\ Toolbag\ %d/Marmoset\ Toolbag.app/Contents/MacOS/Marmoset\ Toolbag" % v
+    }
+    return d[platform.system()]
+
+
+def _RenderDoc(v=1.12):
+    d = {
+        "Linux": "/opt/renderdoc_%d/bin/qrenderdoc" % v,
+        "Windows": "C:/Program Files/RenderDoc/qrenderdoc.exe",
+        "Darwin": None
     }
     return d[platform.system()]
 

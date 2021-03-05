@@ -63,6 +63,9 @@ class GuiLogHandler(Handler):
             elif env.Rumba():
                 meta.error(msg)
 
+            elif env.RenderDoc():
+                meta.LogMessage(meta.LogType.Error, "", file, 0, msg)
+
         elif record.levelno > INFO:
             if env.Maya():
                 self.MGlobal.displayWarning(msg)
@@ -94,6 +97,9 @@ class GuiLogHandler(Handler):
             elif env.Rumba():
                 meta.warn(msg)
 
+            elif env.RenderDoc():
+                meta.LogMessage(meta.LogType.Warning, "", file, 0, msg)
+
         else:
             if env.Maya():
                 self.MGlobal.displayInfo(msg)
@@ -124,6 +130,9 @@ class GuiLogHandler(Handler):
 
             elif env.Rumba():
                 meta.info(msg)
+
+            elif env.RenderDoc():
+                meta.LogMessage(meta.LogType.Warning.Debug, "", file, 0, msg)
 
 
 try:

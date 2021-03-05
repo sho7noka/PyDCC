@@ -67,6 +67,10 @@ def main_window():
         import rumbapy
         return rumbapy.widget("MainWindow")
 
+    if app_name == "renderdoc":
+        import qrenderdoc
+        return qrenderdoc.MainWindow
+
     return None
 
 
