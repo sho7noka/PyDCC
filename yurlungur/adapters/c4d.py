@@ -9,37 +9,9 @@ except (ImportError, KeyError):
     run, shell, end, connect = __App("c4d")._actions
 
     __all__ = ["run", "shell", "end", "connect"]
-
-
-class Project(object):
-    def __init__(self, project):
-        self.project = project
-
-    def __repr__(self):
-        return self.project.name()
-
-    @property
-    def sequences(self):
-        return Timeline(self.project)
-
-
-class Timeline(object):
-    def __init__(self, timeline):
-        self.timeline = timeline
-
-    @property
-    def tracks(self):
-        return Track(self.timeline)
-
-
-class Track(object):
-    def __init__(self, track):
-        self.track = track
-
-    @property
-    def clips(self):
-        return Item(self.track)
-
-
-class Item(object):
-    pass
+    """
+    https://www.cineversity.com/wiki/Python:_Finding_Plugin_IDs/
+    >>> for p in c4d.plugins.FilterPluginList(c4d.PLUGINTYPE_SCENELOADER,True):
+    >>>    print(p.GetID(), " = ", p.GetName())
+    # 1055179  =  USD (*.usda/*.usdc)
+    """

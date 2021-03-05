@@ -2,31 +2,14 @@
 import os
 from yurlungur.core.env import App as __App
 
+run, _, end, _ = __App("davinci")._actions
 
-class Render(object):
-    def __init__(self, project):
-        self.project = project
-        self.jobs = project.GetRenderJobs()
-        self.presets = project.GetRenderPresets()
-        self.formats = project.GetRenderFormats()
-        # GetCurrentRenderFormatAndCodec
 
-    def add(self):
-        self.project.AddRenderJob()
+# bmd = fusionscript, fu, comp
 
-    def start(self, *args):
-        """args 無しも可能"""
-        self.project.StartRendering(*args)
-
-    def stop(self):
-        if self.project.IsRenderingInProgress():
-            self.project.StopRendering()
-
-    def delete(self, *args):
-        if len(args) == 0:
-            self.project.DeleteAllRenderJobs()
-        else:
-            self.project.DeleteRenderJobIndex(args[0])
+def version():
+    from yurlungur.tool.meta import meta
+    return meta.resolve.GetVersion()[0] > 16
 
 
 class Projects(object):
@@ -47,6 +30,10 @@ class Projects(object):
             self.project = self.manager.CreateProject(val)
 
         return self
+
+    @property
+    def current(self):
+        return self.project
 
     @property
     def sequences(self):
@@ -85,6 +72,10 @@ class Timeline(object):
 
         return self
 
+    @property
+    def current(self):
+        return self.timeline
+
     def imports(self, *args):
         self.media.AppendToTimeline(*args)
         self.timeline = self.project.GetCurrentTimeline()
@@ -111,6 +102,10 @@ class Track(object):
         return self
 
     @property
+    def current(self):
+        return self.timeline.GetCurrentVideoItem()
+
+    @property
     def clips(self):
         return Item(self.track)
 
@@ -130,9 +125,15 @@ class Item(object):
                 self.track = self.track.GetFusionCompByIndex(val)
 
         elif type(val) == str:
-            for v in self.track.GetFusionCompNames().values():
-                if val in v.GetName():
-                    self.track = self.track.GetFusionCompByName(val)
+            if version():
+                for comp in self.track.GetFusionCompNameList():
+                    if val in comp:
+                        self.track = self.track.GetFusionCompByName(val)
+            else:
+                for v in self.track.GetFusionCompNames().values():
+                    if val in v.GetName():
+                        self.track = self.track.GetFusionCompByName(val)
+
             if os.path.exists(val):
                 self.track = self.track.ImportFusionComp(val)
                 self.track = self.track.LoadFusionCompByName(val)
@@ -149,9 +150,32 @@ class Item(object):
         return self.track.DeleteFusionCompByName(name)
 
 
+class Render(object):
+    def __init__(self, project):
+        self.project = project
+        self.jobs = project.GetRenderJobs()
+        self.presets = project.GetRenderPresets()
+        self.formats = project.GetRenderFormats()
+        # GetCurrentRenderFormatAndCodec
+
+    def add(self):
+        self.project.AddRenderJob()
+
+    def start(self, *args):
+        """args 無しも可能"""
+        self.project.StartRendering(*args)
+
+    def stop(self):
+        if self.project.IsRenderingInProgress():
+            self.project.StopRendering()
+
+    def delete(self, *args):
+        if len(args) == 0:
+            self.project.DeleteAllRenderJobs()
+        else:
+            self.project.DeleteRenderJobIndex(args[0])
+
 # clips
 # clips = resolve.GetMediaStorage().AddItemsToMediaPool(paths)
 # clips.GetClipProperty()
 # clips.SetClipProperty(n, v)
-
-run, _, end, _ = __App("davinci")._actions
