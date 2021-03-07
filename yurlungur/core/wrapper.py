@@ -37,8 +37,7 @@ class MultiObject(object):
         if resolve:
             fusion = resolve.Fusion()
             is_fusion = not fusion.CurrentComp is None
-            from yurlungur.adapters import davinci as _davinci
-            davinci = _davinch
+            from yurlungur.adapters import davinci
 
     def __getattr__(self, item):
         try:
@@ -109,6 +108,9 @@ class MultiObject(object):
 
 class MetaObject(type):
     """"""
+    __doc__ = """
+    base class
+    """
 
     def __new__(cls, name, bases, attrs):
         return super(MetaObject, cls).__new__(cls, name, bases, attrs)

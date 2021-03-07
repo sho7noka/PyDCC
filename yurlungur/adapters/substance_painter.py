@@ -1,4 +1,15 @@
 # coding: utf-8
+import sys as __sys
+
+try:
+    __sys.modules[__name__] = __sys.modules["substance_painter"]
+except (ImportError, KeyError):
+    from yurlungur.core.env import App as __App
+
+    run, shell, end, _ = __App("substance_painter")._actions
+
+    __all__ = ["run", "end"]
+
 u"""
 Example :  "substance painter.exe" --mesh "E:\\MyMeshFolder\\MyMesh.obj" --mesh-map "E:\\ MyMeshFolder \\DefaultMaterial_ambient_occlusion.png"
 
@@ -21,13 +32,3 @@ ID = id
 --export-path	 Default export path where the outputs of the project will be exported.
 --disable-version-checking
 """
-import sys as __sys
-
-try:
-    __sys.modules[__name__] = __sys.modules["substance_painter"]
-except (ImportError, KeyError):
-    from yurlungur.core.env import App as __App
-
-    run, _, end, _ = __App("substance_painter")._actions
-
-    __all__ = ["run", "end"]
