@@ -1283,7 +1283,7 @@ class File(YObject):
     """
     save, open and export
     """
-    abc, fbx, usd = None, None, None
+    abc, fbx, usd = "", "", ""
 
     def __init__(self, path=""):
         self.file = path if path else self.current

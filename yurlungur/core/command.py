@@ -6,7 +6,7 @@ from yurlungur.core.proxy import Node, Attribute, File
 from yurlungur.tool.meta import meta
 
 __all__ = [
-    "file", "cmd", "node", "attr"
+    "file", "cmd", "node"
 ]
 
 u"""
@@ -562,21 +562,21 @@ Node.glob = _glob
 
 # Monkey-Patch for file
 file = File()
-File.fbx.Import = _fbxImporter
-File.fbx.Export = _fbxExporter
+File.fbxImport = _fbxImporter
+File.fbxExport = _fbxExporter
 
 for p in "hda", "uclass", "Debug", "C4DAtom":
     if getattr(meta, p, False):
-        File.usd.Import = _usdImporter
-        File.usd.Export = _usdExporter
+        File.usdImport = _usdImporter
+        File.usdExport = _usdExporter
 
 if getattr(meta, "knob", False):
-    File.usd.Import = _usdImporter
+    File.usdImport = _usdImporter
 if getattr(meta, "data", False):
-    File.usd.Export = _usdExporter
+    File.usdExport = _usdExporter
 
-File.abc.Import = _abcImporter
-File.abc.Export = _abcExporter
+File.abcImport = _abcImporter
+File.abcExport = _abcExporter
 
 # Monkey-Patch for command
 cmd = Command()
