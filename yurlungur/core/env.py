@@ -73,6 +73,7 @@ def set(module):
         yurlungur.env
         modules
             PySide2
+            ...
     """
     if platform.system() == "Windows":
         path = os.getenv("USERPROFILE") + "\\Documents\\yurlungur\\modules"

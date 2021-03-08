@@ -1,20 +1,16 @@
 # -*- coding: utf-8 -*-
 import os
 import inspect
-
-try:
-    from functools import partial, total_ordering
-except ImportError:
-    total_ordering = dir
+from functools import partial
 
 from yurlungur.core.deco import trace
 from yurlungur.core.exception import YException
-from yurlungur.core.wrapper import _YObject
+from yurlungur.core.wrapper import YObject
 # from yurlungur.core.datatype import Vector, Matrix, Color
 from yurlungur.tool.meta import meta
 
 
-class Object(_YObject):
+class Object(YObject):
     """document base object
     >>> cone = Object("pCone")
     >>> cone.set("my_cone")
@@ -34,7 +30,11 @@ class Object(_YObject):
         return self.attrs
 
     def __getattr__(self, val):
-        return self.attr(val)
+        if val in self.attrs:
+            return self.attr(val)
+        else:
+            from yurlungur.core.command import _NodeType
+            return _NodeType()
 
     @property
     def name(self):
@@ -92,6 +92,9 @@ class Object(_YObject):
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
 
+        if getattr(meta, "BusyData", False):
+            raise YException("api is not found")
+
     @trace
     def set(self, *args, **kwargs):
         """
@@ -105,6 +108,7 @@ class Object(_YObject):
         """
         if getattr(meta, "SDNode", False):
             meta.graph.setIdentifier(args[0])
+            return Node(args[0])
 
         if getattr(meta, "rename", False):
             return meta.rename(self.item, *args, **kwargs)
@@ -124,14 +128,17 @@ class Object(_YObject):
             return meta.doc.SearchObject(self.item).SetName(args[0])
 
         if getattr(meta, "knob", False):
-            meta.toNode(self.item).setName(args[0], **kwargs)
+            return meta.toNode(self.item).setName(args[0], **kwargs)
 
         if getattr(meta, "fusion", False):
-            return (
-                meta.fusion.GetCurrentComp()
-                    .FindTool(self.item)
-                    .SetAttrs({"TOOLS_Name": args[0]})
-            )
+            if meta.is_fusion:
+                return (
+                    meta.fusion.GetCurrentComp()
+                        .FindTool(self.item)
+                        .SetAttrs({"TOOLS_Name": args[0]})
+                )
+            else:
+                return meta.davinci.Projects()[self.item]
 
         if getattr(meta, "doc", False):
             try:
@@ -172,6 +179,9 @@ class Object(_YObject):
         if getattr(meta, "textureset", False):
             return
 
+        if getattr(meta, "BusyData", False):
+            raise YException("api is not found")
+
     @trace
     def attr(self, val, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -210,9 +220,12 @@ class Object(_YObject):
             return Attribute(meta.toNode(self.name)[val], self.name, val)
 
         if getattr(meta, "fusion", False):
-            return Attribute(
-                getattr(meta.fusion.GetCurrentComp().FindTool(self.name), val), self.name, val
-            )
+            if meta.is_fusion:
+                return Attribute(
+                    getattr(meta.fusion.GetCurrentComp().FindTool(self.name), val), self.name, val
+                )
+            else:
+                return Attribute
 
         if getattr(meta, "doc", False):
             try:
@@ -250,6 +263,9 @@ class Object(_YObject):
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
 
+        if getattr(meta, "BusyData", False):
+            raise YException("api is not found")
+
     @property
     def attrs(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -284,7 +300,7 @@ class Object(_YObject):
             return tuple(attrs)
 
         if getattr(meta, "knob", False):
-            return ([knob.name() for knob in meta.toNode(self.name).allKnobs()])
+            return (knob.name() for knob in meta.toNode(self.name).allKnobs())
 
         if getattr(meta, "fusion", False):
             return tuple(meta.fusion.GetCurrentComp().FindTool(self.name).GetAttrs())
@@ -313,6 +329,9 @@ class Object(_YObject):
             return (attr for attr in dir(meta.findObject(args[0])) if not attr.startswith("__"))
 
         if getattr(meta, "textureset", False):
+            raise YException("api is not found")
+
+        if getattr(meta, "BusyData", False):
             raise YException("api is not found")
 
     @trace
@@ -441,6 +460,9 @@ class Object(_YObject):
         if getattr(meta, "textureset", False):
             raise YException("api is not found")
 
+        if getattr(meta, "BusyData", False):
+            raise YException("api is not found")
+
     @trace
     def delete(self, *args, **kwargs):
         if getattr(meta, "SDNode", False):
@@ -493,6 +515,9 @@ class Object(_YObject):
             return meta.findObject(self.name).destroy()
 
         if getattr(meta, "textureset", False):
+            raise YException("api is not found")
+
+        if getattr(meta, "BusyData", False):
             raise YException("api is not found")
 
     @trace
@@ -561,37 +586,41 @@ class Object(_YObject):
         if getattr(meta, "SceneObject", False):
             return Object(meta.findObject(self.name).duplicate(args[0]).name)
 
+        if getattr(meta, "BusyData", False):
+            raise YException("api is not found")
+
     @trace
     def select(self, *args, **kwargs):
         from yurlungur.core.command import node
 
         if getattr(meta, "SDNode", False):
-            return node.selected
+            return node.sel
 
         if getattr(meta, "select"):
             if "shape" not in kwargs and "s" not in kwargs:
                 kwargs["s"] = True
 
             if len(args) == 0 and len(kwargs) == 0:
-                return node.selected
+                return node.sel
             else:
                 return meta.select(*args, **kwargs)
 
         if getattr(meta, "hda", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return node.selected
+                return node.sel
             else:
                 return meta.node(self.name).setCurrent(*args, **kwargs)
 
         if getattr(meta, "runtime", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return node.selected
+                return node.sel
             else:
                 return meta.runtime.select(meta.runtime.getnodebyname(self.name))
 
         if getattr(meta, "data", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return node.selected
+                # return meta.context.view_layer.objects.selected
+                return node.sel
             else:
                 return meta.ops.object.select_pattern(pattern=self.name)
 
@@ -602,18 +631,21 @@ class Object(_YObject):
 
         if getattr(meta, "knob", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return node.selected
+                return node.sel
             else:
                 return meta.toNode(self.name).setSelected()
 
         if getattr(meta, "fusion", False):
-            return meta.fusion.GetCurrentComp().CurrentFrame.FlowView.Select(
-                *args, **kwargs
-            )
+            if len(args) == 0 and len(kwargs) == 0:
+                return meta.fusion.GetCurrentComp().GetToolList(True)
+            else:
+                return meta.fusion.GetCurrentComp().CurrentFrame.FlowView.Select(
+                    *args, **kwargs
+                )
 
         if getattr(meta, "doc", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return node.selected
+                return node.sel
             else:
                 try:
                     return setattr(
@@ -626,7 +658,7 @@ class Object(_YObject):
             uname = meta.ue4.uname(self.name)
             if len(args) == 0 and len(kwargs) == 0:
                 if type(uname) == str:
-                    return node.selected
+                    return node.sel
                 else:
                     return (
                         Node(asset.get_name())
@@ -640,7 +672,7 @@ class Object(_YObject):
 
         if getattr(meta, "Debug", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return node.selected
+                return node.sel
             else:
                 return setattr(
                     meta.editor.Selection.activeGameObject,
@@ -649,12 +681,15 @@ class Object(_YObject):
 
         if getattr(meta, "BVH3", False):
             if len(args) == 0 and len(kwargs) == 0:
-                return node.selected
+                return node.sel
             else:
                 return meta.select(*args, **kwargs)
 
         if getattr(meta, "SceneObject", False):
-            return node.selected
+            return node.sel
+
+        if getattr(meta, "BusyData", False):
+            raise YException("api is not found")
 
     @trace
     def hide(self, on=True):
@@ -698,6 +733,9 @@ class Object(_YObject):
 
         if getattr(meta, "SceneObject", False):
             return setattr(meta.findObject(self.name), "visible", not on)
+
+        if getattr(meta, "BusyData", False):
+            raise YException("api is not found")
 
     @trace
     def parent(self, *args, **kwarg):
@@ -768,6 +806,9 @@ class Object(_YObject):
         if getattr(meta, "SceneObject", False):
             return Object(meta.findObject(self.name).parent.name)
 
+        if getattr(meta, "BusyData", False):
+            raise YException("api is not found")
+
     @trace
     def children(self, *args, **kwarg):
         if getattr(meta, "SDNode", False):
@@ -828,6 +869,9 @@ class Object(_YObject):
 
         if getattr(meta, "SceneObject", False):
             return (Object(obj.name) for obj in meta.findObject(self.name).getChildren())
+
+        if getattr(meta, "BusyData", False):
+            raise YException("api is not found")
 
 
 class Node(Object):
@@ -970,8 +1014,8 @@ class Node(Object):
             return [Node(out.name()) for out in node.plug(args[0]).outputs()]
 
 
-@total_ordering
-class Attribute(_YObject):
+# @total_ordering
+class Attribute(YObject):
     """parametric object"""
 
     def __init__(self, *args):
@@ -1058,6 +1102,8 @@ class Attribute(_YObject):
                 return setattr(self._values[0], self.val, args[0])
             else:
                 return setattr(meta.runtime.getnodebyname(self.obj), self.val, args[0])
+                # http://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=Max_Python_API_using_pymxs_pymxs_differences_pymxs_controllers_html
+                # return meta.runtime.setProperty(meta.runtime.getnodebyname(self.obj), self.val, args[0])
 
         if getattr(meta, "data", False):
             return setattr(
@@ -1116,11 +1162,59 @@ class Attribute(_YObject):
             return setattr(meta.findObject(self.val), "", args[0])
 
         if getattr(meta, "textureset", False):
-            return
+            return YException("api is not found")
+
+        if getattr(meta, "BusyData", False):
+            raise YException("api is not found")
 
     @trace
-    def create(self):
-        """create attribute"""
+    def create(self, *args, **kwargs):
+        """
+        create attribute
+        >>> yr.attr.create("Name", 1, node)
+        >>> yr.attr.delete(attr)
+        """
+        if getattr(meta, "setAttr", False):
+            return meta.addAttr(self.obj, ln='ID', k=True)
+
+        if getattr(meta, "hda", False):
+            map_value = "%s -> %s" % ("ID", "ID".upper())
+            if geo.findGlobalAttrib("ID") is None:
+                geo.addAttrib(meta.attribType.Global, "ID", "")
+            return geo.setGlobalAttribValue("ID", map_value)
+
+        if getattr(meta, "knob", False):
+            if type(self.val) == list:
+                knob = "Array_Knob"
+            if type(self.val) == int:
+                knob = "WH_Knob"
+            if type(self.val) == bool:
+                knob = "Boolean_Knob"
+            k = partial(meta, knob)("ID".lower(), "ID")
+            return self.obj.addKnob(k)
+
+        if getattr(meta, "data", False):
+            self.obj["ID"] = str(self.val)
+            return
+
+        if getattr(meta, "runtime", False):
+            attributes = '''attributes "ID"
+            (
+                parameters main rollout:params
+                (
+                    param1 type:#float ui:spinParam1 default:10 animateable:True
+                )
+
+                rollout params "Test Parameters"
+                (
+                    spinner spinParam1 "Param1" type:#float
+                )
+            )'''
+            attr = meta.eval(attributes)
+            t = meta.runtime.getnodebyname(self.obj)
+            meta.runtime.custAttributes.add(t.baseObject, attr)
+            partial(t, "ID").param1 = self.val
+            return
 
     @trace
     def delete(self):
@@ -1144,7 +1238,7 @@ class Attribute(_YObject):
             return self._values[0].lock.set_value(on)
 
         if getattr(meta, "SceneObject", False):
-            return
+            return YException("api is not found")
 
     @trace
     def hide(self, on=True):
@@ -1161,7 +1255,7 @@ class Attribute(_YObject):
             return self._values[0].visible.set_value(not on)
 
         if getattr(meta, "SceneObject", False):
-            return
+            return YException("api is not found")
 
     @property
     def vector(self):
@@ -1185,9 +1279,11 @@ class Attribute(_YObject):
             return Matrix(*self._values[0])
 
 
-class File(_YObject):
-    """save, open and export"""
-    abc, fbx, usd, gltf = None, None, None, None
+class File(YObject):
+    """
+    save, open and export
+    """
+    abc, fbx, usd = None, None, None
 
     def __init__(self, path=""):
         self.file = path if path else self.current
@@ -1205,16 +1301,10 @@ class File(_YObject):
 
     @classmethod
     def open(cls, *args, **kwargs):
-        from yurlungur.core.command import file
-
-        if args[0].endswith("abc"):
-            return cls(file.abc.Importer(*args, **kwargs))
-
-        if args[0].endswith("fbx"):
-            return cls(file.fbx.Importer(*args, **kwargs))
-
-        if args[0].endswith("usd"):
-            return cls(file.usd.Importer(*args, **kwargs))
+        if args[0].endswith("abc") or args[0].endswith("fbx") or args[0].endswith("usd"):
+            from yurlungur.core.command import file
+            im = getattr(file, os.path.splitext(args[0])).Import(*args, **kwargs)
+            return cls(im)
 
         if getattr(meta, "sbs", False):
             return cls(meta.manager.loadUserPackage(*args, **kwargs))
@@ -1250,7 +1340,7 @@ class File(_YObject):
                 return meta.manager.LoadProject(*args, **kwargs)
 
         if getattr(meta, "uclass", False):
-            return cls(file.abcImporter(*args, **kwargs))
+            return
 
         if getattr(meta, "Debug", False):
             return cls(meta.editor.AssetDatabase.ImportAsset(*args, **kwargs))
@@ -1269,19 +1359,10 @@ class File(_YObject):
 
     @classmethod
     def save(cls, *args, **kwargs):
-        from yurlungur.core.command import file
-
-        if args[0].endswith("abc"):
-            return cls(file.abc.Exporter(*args, **kwargs))
-
-        if args[0].endswith("fbx"):
-            return cls(file.fbx.Exporter(*args, **kwargs))
-
-        if args[0].endswith("usd"):
-            return cls(file.usd.Exporter(*args, **kwargs))
-
-        if args[0].endswith("gltf"):
-            return cls(file.gltf.Exporter(*args, **kwargs))
+        if args[0].endswith("abc") or args[0].endswith("fbx") or args[0].endswith("usd"):
+            from yurlungur.core.command import file
+            ex = getattr(file, os.path.splitext(args[0])).Export(*args, **kwargs)
+            return cls(ex)
 
         if getattr(meta, "sbs", False):
             return cls(meta.manager.savePackageAs(*args, **kwargs))

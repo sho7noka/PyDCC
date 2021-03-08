@@ -25,18 +25,19 @@ Yurlungur is pure Python and can be used **synchronously** in mixed Python2 and 
 |       | Node | Attribute | Sync |
 | ---- | --- | --- | --- |
 | Maya (2016~) | ○ | ○ | ○ |
-| Substance (2018.1.2~) | ○ | ○ | ☓ |
+| Substance Designer (2018.1.2~) | ○ | ○ | ☓ |
 | Houdini (16~) | ○ | ○ | ☓ |
 | Blender (2.80~) | ○ | ○ | ○ |
 | Unreal Engine (4.22~) | ○ | ○ | ☓ |
 | Unity (2019.1~) | ○ | ○ | ○ |
 | Nuke (10~) | ○ | ○ | ☓ |
-| Cinema4D (R21~) | ○ | ○ | ☓ |
 | Davinci Resolve(&Fusion) (15~) | ○ | ○ | ☓ |
+| Cinema4D (R21~) | ○ | ○ | ☓ |
+| Substance Painter (2020~) | ☓ | ☓ | ☓ |
 | Marmoset Toolbag (3~) | ○ | ○ | ☓ |
-| RUMBA | ○ | ○ | ☓ |
+| RenderDoc (1.12~) | ☓ | ☓ | ☓ |
 
-We also support 3dsMax and Photoshop.
+We also support 3dsMax, Rumba and Photoshop.
 
 ### Installation
 ```bash

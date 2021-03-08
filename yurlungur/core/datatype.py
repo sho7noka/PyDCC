@@ -4,6 +4,18 @@ from yurlungur.core import env
 
 _YVector, _YMatrix, _YColors = (object, object, object)
 
+import maya.api.OpenMaya as _api2
+
+__all__ = ['Matrix', 'M', 'ImmutableMatrix']
+
+_MM = _api2.MMatrix
+_MQ = _api2.MQuaternion
+_ME = _api2.MEulerRotation
+_MP = _api2.MPoint
+_MV = _api2.MVector
+_MX = _api2.MTransformationMatrix
+_MSpace_kTransform = _api2.MSpace.kTransform
+
 # math for native
 if env.Maya() or env.Rumba():  # and Katana
     try:
@@ -14,12 +26,6 @@ if env.Maya() or env.Rumba():  # and Katana
     _YVector = type('_YVector', (imath.V3f,), dict())
     _YMatrix = type('_YMatrix', (imath.M33f,), dict())
     _YColors = type('_YColors', (imath.Color4f,), dict())
-
-    if env.Maya():
-        import maya.cmds
-
-        for plugin in "fbxmaya.mll", "AbcImport.mll", "AbcExport.mll":
-            maya.cmds.loadPlugin(plugin, qt=1)
 
 elif env.Houdini() or env.UE4() or env.Unity():
     _YVector = type('_YVector', (
@@ -757,6 +763,14 @@ def _newV(data, cls=V):
     return obj
 
 
+_MV_Zero = _MV.kZeroVector
+_MQ_Identity = _MQ.kIdentity
+_MM_Identity = _MM.kIdentity
+
+_TOLERANCE = _MM.kTolerance
+
+_ZERO3 = (0., 0., 0.)
+
 _object_new = object.__new__
 
 _V_setdata = V._Vector__data.__set__
@@ -784,24 +798,7 @@ _AXIS_VECTOR_DICT = ImmutableDict({
 })
 V.AXIS_VECTOR_DICT = _AXIS_VECTOR_DICT  #: 軸 ID からベクトルを得る辞書。
 
-import maya.api.OpenMaya as _api2
 
-__all__ = ['Matrix', 'M', 'ImmutableMatrix']
-
-_MM = _api2.MMatrix
-_MQ = _api2.MQuaternion
-_ME = _api2.MEulerRotation
-_MP = _api2.MPoint
-_MV = _api2.MVector
-_MX = _api2.MTransformationMatrix
-_MSpace_kTransform = _api2.MSpace.kTransform
-_MV_Zero = _MV.kZeroVector
-_MQ_Identity = _MQ.kIdentity
-_MM_Identity = _MM.kIdentity
-
-_TOLERANCE = _MM.kTolerance
-
-_ZERO3 = (0., 0., 0.)
 
 
 class Matrix(_YMatrix):
