@@ -63,11 +63,11 @@ class TestMaya(unittest.TestCase):
     @unittest.skip("only runtime")
     def test_cymel(self):
         from maya import cmds
-        from cymel.all import *
+        from cymel import all as _all
         i = 0
         start = time()
         while i < 1000:
-            cube = cm.O(cmds.polyCube()[0])
+            cube = _all.cm.O(cmds.polyCube()[0])
             cube.t.set((ru(-5, 5), ru(-5, 5), ru(-5, 5)))
             print(cube.t.get())
             i += 1

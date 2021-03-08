@@ -18,7 +18,7 @@ class TestMax(unittest.TestCase):
 
     @unittest.skip("only runtime")
     def test_cmds(self):
-        box = yr.Node().create('box')
+        box = yr.node.create('box')
         print (box.name, box.id, box.attr('Width'), box.attrs)
 
         print (box.create('Mirror', offset=0.1))
