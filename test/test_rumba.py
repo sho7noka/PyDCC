@@ -10,9 +10,7 @@ from yurlungur.core.env import _Rumba
 
 @unittest.skipUnless(_Rumba(), "Rumba is not found")
 class TestRumba(unittest.TestCase):
-    def test_something(self):
-        self.assertEqual(True, False)
-
+    @unittest.skip("only runtime")
     def test_cli(self):
         yr.rumba.run()
 
