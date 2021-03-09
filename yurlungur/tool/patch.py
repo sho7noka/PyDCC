@@ -1,37 +1,37 @@
 # coding: utf-8
 import sys
-from yurlungur.core import env
-from yurlungur import Qt
+from yurlungur.core import env as _env
 from yurlungur.tool import window as _window
 
 try:
+    from yurlungur import Qt
     from vfxwindow import VFXWindow as _UIWindow
+
+    # dispatch for Qt
+    Qt.main_window = _window.main_window
+    Qt.show = _window.show
+    Qt.UIWindow = _UIWindow
 except ImportError:
     _UIWindow = object
 
-# dispatch for Qt
-Qt.main_window = _window.main_window
-Qt.show = _window.show
-Qt.UIWindow = _UIWindow
-
 # dispatch app
-_UIWindow.c4d = env.C4D()
-_UIWindow.marmoset = env.Marmoset()
-_UIWindow.rumba = env.Rumba()
-_UIWindow.substance_painter = env.SPainter()
-_UIWindow.unity = env.Unity()
+_UIWindow.c4d = _env.C4D()
+_UIWindow.marmoset = _env.Marmoset()
+_UIWindow.rumba = _env.Rumba()
+_UIWindow.substance_painter = _env.SPainter()
+_UIWindow.unity = _env.Unity()
 
-if env.Blender() or env.Nuke():
+if _env.Blender() or _env.Nuke():
     sys.exit = None
 
 # https://github.com/huntfx/vfxwindow/wiki/Quick-Start#callbacks
-if env.Max():
+if _env.Max():
     _UIWindow.addCallback = None
 
-if env.Unity():
+if _env.Unity():
     _UIWindow.addCallback = None
 
-if env.Substance():
+if _env.Substance():
     import sd as __sd
 
     app = __sd.getContext().getSDApplication()
@@ -42,7 +42,7 @@ if env.Substance():
     _UIWindow.addCallbackAfterFileSaved = app.registerAfterFileSavedCallback
     _UIWindow.removeCallbacks = (app.unregisterCallback(uuid) for uuid in [])
 
-if env.SPainter():
+if _env.SPainter():
     import substance_painter.event as __e
 
     # Subscribe to project related events.

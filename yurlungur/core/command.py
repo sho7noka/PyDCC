@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import fnmatch
-from functools import partial
+import types
+import importlib
+from functools import partial, wraps
 
 from yurlungur.core.proxy import Node, Attribute, File
 from yurlungur.tool.meta import meta
@@ -34,11 +36,17 @@ class Command(object):
     """
 
     def __getattr__(self, item):
-        return _CMDS_[item]()
+        return _CMDS_[item]
 
+    # @wraps(func)
     @staticmethod
     def register(func):
-        _CMDS_.update(func.__name__, func)
+        p = partial(meta.eval, func)
+        m = types.ModuleType(func)
+        if _CMDS_.has_key(func):
+            _CMDS_.update(func, p) # cmd.func()
+        else:
+            _CMDS_.update(func, m) # cmd.func
 
     @classmethod
     def list(cls):
@@ -562,23 +570,32 @@ Node.glob = _glob
 
 # Monkey-Patch for file
 file = File()
-File.fbxImport = _fbxImporter
-File.fbxExport = _fbxExporter
+
+fbxs = ["eval", "runtime", "data", "uclass", "Debug", "knob", "C4DAtom", "fusion", "textureset", "SceneObject"]
+if any([getattr(meta, p, False) for p in fbxs]):
+    File.fbx = types.ModuleType("fbx")
+    File.fbx.Import = _fbxImporter
+    File.fbx.Export = _fbxExporter
+
+abcs = ["AbcImport", "runtime", "uclass", "SceneObject", "textureset", "data", "BVH3"]
+if any([getattr(meta, p, False) for p in abcs]):
+    File.abc = types.ModuleType("abc")
+    File.abc.Import = _abcImporter
+    File.abc.Export = _abcExporter
 
 for p in "hda", "uclass", "Debug", "C4DAtom":
     if getattr(meta, p, False):
-        File.usdImport = _usdImporter
-        File.usdExport = _usdExporter
+        File.usd = types.ModuleType("usd")
+        File.usd.Import = _usdImporter
+        File.usd.Export = _usdExporter
 
 if getattr(meta, "knob", False):
-    File.usdImport = _usdImporter
+    File.usd = types.ModuleType("usd")
+    File.usd.Import = _usdImporter
 if getattr(meta, "data", False):
-    File.usdExport = _usdExporter
-
-File.abcImport = _abcImporter
-File.abcExport = _abcExporter
+    File.usd = types.ModuleType("usd")
+    File.usd.Export = _usdExporter
 
 # Monkey-Patch for command
 cmd = Command()
-Command.eval = meta.eval
 Command.bake = _Bake

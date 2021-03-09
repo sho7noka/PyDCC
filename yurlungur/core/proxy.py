@@ -1283,8 +1283,6 @@ class File(YObject):
     """
     save, open and export
     """
-    abc, fbx, usd = "", "", ""
-
     def __init__(self, path=""):
         self.file = path if path else self.current
 
@@ -1303,8 +1301,9 @@ class File(YObject):
     def open(cls, *args, **kwargs):
         if args[0].endswith("abc") or args[0].endswith("fbx") or args[0].endswith("usd"):
             from yurlungur.core.command import file
-            im = getattr(file, os.path.splitext(args[0])).Import(*args, **kwargs)
-            return cls(im)
+            im = getattr(file, os.path.splitext(args[0]), False)
+            if im:
+                return cls(im.Import(*args, **kwargs))
 
         if getattr(meta, "sbs", False):
             return cls(meta.manager.loadUserPackage(*args, **kwargs))
@@ -1361,8 +1360,9 @@ class File(YObject):
     def save(cls, *args, **kwargs):
         if args[0].endswith("abc") or args[0].endswith("fbx") or args[0].endswith("usd"):
             from yurlungur.core.command import file
-            ex = getattr(file, os.path.splitext(args[0])).Export(*args, **kwargs)
-            return cls(ex)
+            ex = getattr(file, os.path.splitext(args[0]), False)
+            if ex:
+                return cls(ex.Export(*args, **kwargs))
 
         if getattr(meta, "sbs", False):
             return cls(meta.manager.savePackageAs(*args, **kwargs))
