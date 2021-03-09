@@ -11,15 +11,16 @@ try:
     Qt.main_window = _window.main_window
     Qt.show = _window.show
     Qt.UIWindow = _UIWindow
+
+    # dispatch app
+    _UIWindow.c4d = _env.C4D()
+    _UIWindow.marmoset = _env.Marmoset()
+    _UIWindow.rumba = _env.Rumba()
+    _UIWindow.substance_painter = _env.SPainter()
+    _UIWindow.unity = _env.Unity()
+
 except ImportError:
     _UIWindow = object
-
-# dispatch app
-_UIWindow.c4d = _env.C4D()
-_UIWindow.marmoset = _env.Marmoset()
-_UIWindow.rumba = _env.Rumba()
-_UIWindow.substance_painter = _env.SPainter()
-_UIWindow.unity = _env.Unity()
 
 if _env.Blender() or _env.Nuke():
     sys.exit = None
