@@ -102,7 +102,7 @@ embeded.h
 #. 競合他社間のソフトウェア統合
 
 
-.. code-block:: make
+.. code-block:: bash
 
     cmake_minimum_required(VERSION 3.0)
     project(yurlungur)

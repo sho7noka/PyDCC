@@ -45,11 +45,3 @@ VSCode
 
     import pydevd
 
-
-Blender
----------------
-https://code.blender.org/2015/10/debugging-python-code-with-pycharm/
-
-.. code-block:: python
-
-    import sys
