@@ -1,8 +1,8 @@
 # Yurlungur
 
-|       | Windows 2.7 | CentOS/macOS 3.7 | code |
+|       | Windows | CentOS/macOS | packages |
 | ----- | ------ | --- | --- |
-| OS | [![Build status](https://ci.appveyor.com/api/projects/status/46vinb8jd1jbbhdg?svg=true)](https://ci.appveyor.com/project/sho7noka/yurlungur) | [![Build Status](https://travis-ci.org/sho7noka/Yurlungur.svg?branch=dev)](https://travis-ci.org/sho7noka/Yurlungur) | [![Latest PyPI version](https://img.shields.io/pypi/v/yurlungur.svg)](https://pypi.python.org/pypi/yurlungur) |
+| status | [![Build status](https://ci.appveyor.com/api/projects/status/46vinb8jd1jbbhdg?svg=true)](https://ci.appveyor.com/project/sho7noka/yurlungur) | [![Build Status](https://travis-ci.org/sho7noka/Yurlungur.svg?branch=dev)](https://travis-ci.org/sho7noka/Yurlungur) | [![Latest PyPI version](https://img.shields.io/pypi/v/yurlungur.svg)](https://pypi.python.org/pypi/yurlungur) |
 
 
 The universal scripting environment with Python which Maya, Houdini and Unreal Engine.

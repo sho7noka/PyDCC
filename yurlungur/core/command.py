@@ -8,7 +8,7 @@ from yurlungur.core.proxy import Node, Attribute, File
 from yurlungur.tool.meta import meta
 
 __all__ = [
-    "file", "cmd", "node"
+    "cmd", "node", "attr", "file"
 ]
 
 u"""
@@ -44,9 +44,9 @@ class Command(object):
         p = partial(meta.eval, func)
         m = types.ModuleType(func)
         if _CMDS_.has_key(func):
-            _CMDS_.update(func, p) # cmd.func()
+            _CMDS_.update(func, p)  # cmd.func()
         else:
-            _CMDS_.update(func, m) # cmd.func
+            _CMDS_.update(func, m)  # cmd.func
 
     @classmethod
     def list(cls):
@@ -55,6 +55,13 @@ class Command(object):
     @staticmethod
     def unregister():
         _CMDS_.clear()
+
+
+# Monkey-Patch for attribute
+# cmds.getAttr(name + "." + val, *args, **kwargs), self.name, val
+attr = Attribute()
+Attribute.create = None
+Attribute.delete = None
 
 
 def _rm(cls, *args):
@@ -552,10 +559,6 @@ class _NodeType(object):
                 )
 
 
-def _Bake(cls, *args, **kwargs):
-    """"""
-
-
 # Monkey-Patch for node
 node = Node()
 Node.ls = _ls
@@ -563,10 +566,14 @@ Node.sel = _select
 Node.rm = _rm
 Node.glob = _glob
 
-# Monkey-Patch for attribute
-# attr = Attribute()
-# Attribute.create = None
-# Attribute.delete = None
+
+def _Bake(cls, *args, **kwargs):
+    """"""
+
+
+# Monkey-Patch for command
+cmd = Command()
+Command.bake = _Bake
 
 # Monkey-Patch for file
 file = File()
@@ -595,7 +602,3 @@ if getattr(meta, "knob", False):
 if getattr(meta, "data", False):
     File.usd = types.ModuleType("usd")
     File.usd.Export = _usdExporter
-
-# Monkey-Patch for command
-cmd = Command()
-Command.bake = _Bake
