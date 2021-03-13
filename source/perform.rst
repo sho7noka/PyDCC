@@ -3,9 +3,9 @@ Performance
 ===================================
 このモジュールはパフォーマンスに焦点を当てたモジュールではありませんが、
 
-Code for maya.cmds, pymel, cmdx, cymel and yurlungur
+maya.cmds, pymel, cmdx, cymel
 
-を対象に計測結果を記載します。
+を対象にしたMaya上でのテスト計測結果を記載します。
 
 .. code-block:: python
 
@@ -48,17 +48,6 @@ Code for maya.cmds, pymel, cmdx, cymel and yurlungur
     dotest(by_cmds)
 
     try:
-        import metan.core as mtn
-    except:
-        pass
-    else:
-        def by_metan():
-            plug = mtn.selected(type='transform')[0].s
-            for s in scales:
-                plug.set([x * s for x in plug.get()])
-        dotest(by_metan)
-
-    try:
         import cmdx
     except:
         pass
@@ -91,6 +80,6 @@ Results
     # Undo:  #
     by_cmds=0.043140
     # Undo:  #
-    by_metan=0.061901
-    # Undo:  #
     by_cmdx=0.054413
+    # Undo:  #
+    by_yurlungur=0.054413

@@ -9,7 +9,7 @@ script:
 #  - sphinx-apidoc -F -o source/ yurlungur/
   - travis-sphinx build --source=source
 after_success:
-  - travis-sphinx deploy --branches "master" --message "doc Update Sphinx pages"
+  - travis-sphinx deploy --branches "dev" --message "doc Update Sphinx pages"
 
 deploy:
   provider: pypi
