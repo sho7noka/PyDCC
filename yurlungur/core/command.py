@@ -58,7 +58,6 @@ class Command(object):
 
 
 # Monkey-Patch for attribute
-# cmds.getAttr(name + "." + val, *args, **kwargs), self.name, val
 attr = Attribute()
 Attribute.create = None
 Attribute.delete = None
@@ -135,7 +134,6 @@ def _glob(cls, *args, **kwargs):
         return
     if getattr(meta, "textureset", False):
         return
-
     return tuple(cls(obj) for obj in gen)
 
 

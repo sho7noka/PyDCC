@@ -1019,9 +1019,12 @@ class Attribute(YObject):
     """parametric object"""
 
     def __init__(self, *args):
-        assert len(args) > 2, "parameter is invalid."
-        self._values = args
-        self.obj, self.val = self._values[1:]
+        if len(args) == 0:
+            self._values = [None, "none", 0]
+        else:
+            assert len(args) > 2, "parameter is invalid."
+            self._values = args
+            self.obj, self.val = self._values[1:]
 
     def __getitem__(self, idx):
         return self._values[idx]
@@ -1037,16 +1040,6 @@ class Attribute(YObject):
 
     @trace
     def __call__(self, *args, **kwargs):
-        """
-        helper method for set
-
-        Args:
-            *args:
-            **kwargs:
-
-        Returns:
-
-        """
         self.set(*args, **kwargs)
 
     @property
@@ -1171,10 +1164,13 @@ class Attribute(YObject):
     def create(self, *args, **kwargs):
         """
         create attribute
-        >>> yr.attr.create("Name", 1, node)
-        >>> yr.attr.delete(attr)
+        >>> import yurlungur
+        >>> Attribute(meta.data.objects[self.name].name, self.name, val)
+        >>> attr = yurlungur.attr.create(yurlungur.node.ls()[0], "mName", "test")
+        >>> yurlungur.attr.mName.delete() or attr.delete()
         """
         if getattr(meta, "setAttr", False):
+            setattr(self, "ID", "ID")
             return meta.addAttr(self.obj, ln='ID', k=True)
 
         if getattr(meta, "hda", False):
@@ -1214,14 +1210,16 @@ class Attribute(YObject):
             t = meta.runtime.getnodebyname(self.obj)
             meta.runtime.custAttributes.add(t.baseObject, attr)
             partial(t, "ID").param1 = self.val
-            return
+            return Attribute()
 
     @trace
-    def delete(self):
+    def delete(self, attr):
         """delete attribute"""
+        assert type(attr) != Attribute, "arg is not Attribute Object"
+        delattr(self, attr)
 
     @trace
-    def lock(self, on):
+    def lock(self, on=True):
         if getattr(meta, "setAttr", False):
             return meta.setAttr(self.obj + "." + self.val, lock=on)
 
@@ -1229,7 +1227,7 @@ class Attribute(YObject):
             return meta.node(self.obj).parm(self.val).lock(on)
 
         if getattr(meta, "knob", False):
-            return meta.toNode(self.obj)[self.val].setEnabled(on)
+            return meta.toNode(self.obj)[self.val].setEnabled(not on)
 
         if getattr(meta, "data", False):
             return setattr(meta.data.objects[self.obj], "lock_" + self.val, on)

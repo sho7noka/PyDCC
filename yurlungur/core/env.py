@@ -444,7 +444,7 @@ def Marmoset(func=None):
     return wrapper
 
 
-def _Maya(v=2018):
+def _Maya(v=2020):
     d = {
         "Linux": "/usr/Autodesk/maya%d-x64/bin/maya" % v,
         "Windows": "C:/Program Files/Autodesk/Maya%d/bin/maya.exe" % v,
