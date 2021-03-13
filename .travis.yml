@@ -5,8 +5,6 @@ install:
 - pip install sphinx travis-sphinx sphinxcontrib-napoleon sphinx_rtd_theme
 script:
   - python setup.py test
-  #  - travis-sphinx --outdir docs build --source=source
-#  - sphinx-apidoc -F -o source/ yurlungur/
   - travis-sphinx build --source=source
 after_success:
   - travis-sphinx deploy --branches "dev" --message "doc Update Sphinx pages"
@@ -15,9 +13,9 @@ deploy:
   provider: pypi
   user: sho7noka
   on:
-    branch: master
+    branch: dev
     distributions: sdist --formats=gztar,zip
-    python: 3.6
+    python: 3.7
   allow_failure: false
   password:
     secure: WaXN4uYxyV0Woj027MUlb3ctbzX/DN2RNHuSiRH+u/BYL33W3MslsJcMk6vIlWeOxXu1OkT/HE2rk2t0NyyqnRWG1bn14sNpGk4w8LYQ4q2xFOxNV9lGeoBHV55LlfZ1M6tNnFOHiNbK+d2NCr50RnpaNkVnr9Y/p42R27NX+MQ5q5KKXqX8wgAGIAEVeMtjtS9JWr9XAdri5jbo2+0xIUtWYIGz8ZWu2U7+OmGkfRyKWVTYclyMMWfflk2KIS/DhpgHUqkMlD1CXV5qMl/hUJEkw2lsWeeOe7Wq5zKIkUSuCOJ5XSOg1rbEMHZXl0PJn7FAjAlAXKHlm6l5jyLsuRf8ClUXEd9hFlyjLb/959D8Bp+Aj5iEL3/2nO1QC4zdrPZDsljBAWQguYDQgTd2BYAnftqkFVHpChI/2pEmUBuzz8NdYZ9PtoGiA75/WxvCfTypDOF+LXOOmVelztfPh75k49/Gog76fo3Phn5fod8qsMoeEkPi07x05jsTw1ajfEYo12aXlzajZNhIvxuwmNMGVE0LNGYBcEQ8esksmOtEE3aktX8BWYCZdqDCVg/7RIygsAqb07yN8CXk4j6NzHZn8l1r6CNJmGCtipOlBm3Wv0ZXpezH5O6szd9ODB9pRmwf9yR1TobFps4nFwOlQDMWG9UhnfbPr8jETHxHG3g=
